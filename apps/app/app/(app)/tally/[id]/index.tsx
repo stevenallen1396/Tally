@@ -14,9 +14,17 @@ export default function TallyDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { colors } = useTheme();
-  const { partnerName, entries, balanceMinor, loading } = useTallyDetail(id);
+  const { partnerName, awaitingPartner, entries, balanceMinor, loading } = useTallyDetail(id);
 
+  const isEven = balanceMinor === 0;
   const isCredit = balanceMinor >= 0;
+  const statusLabel = awaitingPartner
+    ? "Waiting to join"
+    : isEven
+      ? "Evens stevens"
+      : isCredit
+        ? "owes you"
+        : "you owe them";
 
   return (
     <Screen style={{ padding: 0 }}>
@@ -29,12 +37,15 @@ export default function TallyDetail() {
         <ThemedText preset="label" color="secondary">
           {partnerName || (loading ? "…" : "")}
         </ThemedText>
-        <ThemedText preset="ledgerBalance" color={isCredit ? "credit" : "debit"}>
-          {isCredit ? "+" : "-"}
+        <ThemedText
+          preset="ledgerBalance"
+          color={awaitingPartner || isEven ? "secondary" : isCredit ? "credit" : "debit"}
+        >
+          {awaitingPartner || isEven ? "" : isCredit ? "+" : "-"}
           {formatAbsGBP(balanceMinor)}
         </ThemedText>
         <ThemedText preset="ledgerMeta" color="secondary">
-          {isCredit ? "owes you" : "you owe them"}
+          {statusLabel}
         </ThemedText>
       </View>
 

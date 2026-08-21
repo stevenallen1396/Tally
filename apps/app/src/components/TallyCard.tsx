@@ -8,14 +8,24 @@ import { ThemedText } from "./ThemedText";
 export type TallyCardData = {
   id: string;
   partnerName: string;
+  awaitingPartner: boolean;
   balanceMinor: number; // positive = they owe you (credit), negative = you owe them (debit)
 };
 
 export function TallyCard({ data, onPress }: { data: TallyCardData; onPress?: () => void }) {
   const { colors } = useTheme();
+  const isEven = data.balanceMinor === 0;
   const isCredit = data.balanceMinor >= 0;
-  const balanceColor = isCredit ? colors.credit : colors.debit;
-  const balanceBg = isCredit ? colors.creditBg : colors.debitBg;
+  const balanceColor = isEven ? colors.textSecondary : isCredit ? colors.credit : colors.debit;
+  const balanceBg = isEven ? colors.background : isCredit ? colors.creditBg : colors.debitBg;
+
+  const statusLabel = data.awaitingPartner
+    ? "Waiting to join"
+    : isEven
+      ? "Evens stevens"
+      : isCredit
+        ? "owes you"
+        : "you owe";
 
   return (
     <Pressable
@@ -28,7 +38,7 @@ export function TallyCard({ data, onPress }: { data: TallyCardData; onPress?: ()
       <View style={{ flex: 1, gap: 4 }}>
         <ThemedText preset="bodyEmphasis">{data.partnerName}</ThemedText>
         <ThemedText preset="ledgerMeta" color="secondary">
-          {isCredit ? "owes you" : "you owe"}
+          {statusLabel}
         </ThemedText>
       </View>
       <View style={[styles.balancePill, { backgroundColor: balanceBg }]}>

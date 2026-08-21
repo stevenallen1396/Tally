@@ -44,10 +44,29 @@ async function fetchTallies(userId: string): Promise<TallyCardData[]> {
     balanceByTally.set(entry.tally_id, (balanceByTally.get(entry.tally_id) ?? 0) + delta);
   }
 
+  // Tallies with no other member yet still get a real name — the one the
+  // owner gave them at invite time — rather than a placeholder standing in
+  // for it. "Waiting to join" becomes a separate status flag.
+  const unjoinedTallyIds = tallyIds.filter((tallyId) => !otherUserIdByTally.has(tallyId));
+  const pendingLabels = await Promise.all(
+    unjoinedTallyIds.map((tallyId) =>
+      supabase.rpc("get_pending_invite_label", { p_tally_id: tallyId }).then(({ data }) => data),
+    ),
+  );
+  const pendingLabelByTally = new Map(unjoinedTallyIds.map((id, i) => [id, pendingLabels[i]]));
+
   return tallyIds.map((tallyId) => {
     const otherUserId = otherUserIdByTally.get(tallyId);
-    const partnerName = (otherUserId && displayNameByUserId.get(otherUserId)) || "Waiting to join";
-    return { id: tallyId, partnerName, balanceMinor: balanceByTally.get(tallyId) ?? 0 };
+    const awaitingPartner = !otherUserId;
+    const partnerName = otherUserId
+      ? (displayNameByUserId.get(otherUserId) ?? "your tally partner")
+      : (pendingLabelByTally.get(tallyId) ?? "your tally partner");
+    return {
+      id: tallyId,
+      partnerName,
+      awaitingPartner,
+      balanceMinor: balanceByTally.get(tallyId) ?? 0,
+    };
   });
 }
 

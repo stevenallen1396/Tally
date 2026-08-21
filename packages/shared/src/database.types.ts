@@ -376,6 +376,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      get_pending_invite_label: {
+        Args: { p_tally_id: string }
+        Returns: string
+      }
       is_tally_member: { Args: { check_tally_id: string }; Returns: boolean }
       notify_other_tally_member: {
         Args: {

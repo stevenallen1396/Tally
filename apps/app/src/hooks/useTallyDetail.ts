@@ -33,7 +33,7 @@ async function fetchEntries(tallyId: string, userId: string) {
 export function useTallyDetail(tallyId: string) {
   const { session } = useSession();
   const userId = session?.user.id;
-  const { partnerName, loading: partnerLoading } = useTallyPartner(tallyId);
+  const { partnerName, awaitingPartner, loading: partnerLoading } = useTallyPartner(tallyId);
   const [entries, setEntries] = useState<EntryRowData[]>([]);
   const [balanceMinor, setBalanceMinor] = useState(0);
   const [entriesLoading, setEntriesLoading] = useState(true);
@@ -68,5 +68,12 @@ export function useTallyDetail(tallyId: string) {
     };
   }, [tallyId, userId, refetch]);
 
-  return { partnerName, entries, balanceMinor, loading: partnerLoading || entriesLoading, refetch };
+  return {
+    partnerName,
+    awaitingPartner,
+    entries,
+    balanceMinor,
+    loading: partnerLoading || entriesLoading,
+    refetch,
+  };
 }

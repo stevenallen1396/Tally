@@ -31,7 +31,7 @@ export default function AddEntry() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
   const { session } = useSession();
-  const { partnerId } = useTallyPartner(id);
+  const { partnerId, partnerName, awaitingPartner } = useTallyPartner(id);
   const [mode, setMode] = useState<Mode>("chat");
   const [chatText, setChatText] = useState("");
   const [parsed, setParsed] = useState<ParsedEntry | null>(null);
@@ -103,6 +103,22 @@ export default function AddEntry() {
     if (!amountMinor || amountMinor <= 0) return;
     insertEntry({ amountMinor, direction, note, source: "manual" });
   };
+
+  if (awaitingPartner) {
+    return (
+      <Screen>
+        <Stack.Screen
+          options={{ headerLeft: () => <SmartBackButton fallbackHref={`/(app)/tally/${id}`} /> }}
+        />
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", gap: 8 }}>
+          <ThemedText preset="body" color="secondary" style={{ textAlign: "center" }}>
+            {partnerName} hasn&apos;t joined this tally yet — you&apos;ll be able to add entries
+            once they do.
+          </ThemedText>
+        </View>
+      </Screen>
+    );
+  }
 
   return (
     <Screen>

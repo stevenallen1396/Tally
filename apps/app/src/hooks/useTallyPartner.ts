@@ -7,7 +7,8 @@ export function useTallyPartner(tallyId: string) {
   const { session } = useSession();
   const userId = session?.user.id;
   const [partnerId, setPartnerId] = useState<string | null>(null);
-  const [partnerName, setPartnerName] = useState("Waiting to join");
+  const [partnerName, setPartnerName] = useState("your tally partner");
+  const [awaitingPartner, setAwaitingPartner] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,7 +25,15 @@ export function useTallyPartner(tallyId: string) {
         .maybeSingle();
 
       if (!otherMember) {
-        if (!cancelled) setLoading(false);
+        // No one's joined yet — show the name the owner gave them at
+        // invite time instead of a placeholder standing in for the name.
+        const { data: label } = await supabase.rpc("get_pending_invite_label", {
+          p_tally_id: tallyId,
+        });
+        if (cancelled) return;
+        if (label) setPartnerName(label);
+        setAwaitingPartner(true);
+        setLoading(false);
         return;
       }
       const { data: profile } = await supabase
@@ -34,6 +43,7 @@ export function useTallyPartner(tallyId: string) {
         .maybeSingle();
       if (cancelled) return;
       setPartnerId(otherMember.user_id);
+      setAwaitingPartner(false);
       if (profile) setPartnerName(profile.display_name);
       setLoading(false);
     };
@@ -45,5 +55,5 @@ export function useTallyPartner(tallyId: string) {
     };
   }, [tallyId, userId]);
 
-  return { partnerId, partnerName, loading };
+  return { partnerId, partnerName, awaitingPartner, loading };
 }
