@@ -1,3 +1,4 @@
+import * as Linking from "expo-linking";
 import { useState } from "react";
 import { Share, View } from "react-native";
 
@@ -5,17 +6,44 @@ import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
 import { TextField } from "@/components/TextField";
 import { ThemedText } from "@/components/ThemedText";
+import { supabase } from "@/lib/supabase";
 import { useTheme } from "@/theme/ThemeProvider";
 
-// TODO(phase 2/3): call the `create_tally_with_owner` RPC, then create a
-// pending `invites` row and build the real https://tally.folio.app/invite/{token} link.
 export default function NewTally() {
   const { colors } = useTheme();
   const [partnerLabel, setPartnerLabel] = useState("");
   const [inviteLink, setInviteLink] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleCreate = () => {
-    setInviteLink(`https://tally.folio.app/invite/mock-token`);
+  const handleCreate = async () => {
+    setError(null);
+    setSubmitting(true);
+
+    const { data: tally, error: tallyError } = await supabase.rpc("create_tally_with_owner");
+    if (tallyError || !tally) {
+      setSubmitting(false);
+      setError(tallyError?.message ?? "Couldn't create the tally");
+      return;
+    }
+
+    const { data: invite, error: inviteError } = await supabase
+      .from("invites")
+      .insert({
+        tally_id: tally.id,
+        created_by: tally.created_by,
+        invitee_label: partnerLabel.trim() || null,
+      })
+      .select("token")
+      .single();
+    setSubmitting(false);
+
+    if (inviteError || !invite) {
+      setError(inviteError?.message ?? "Couldn't create the invite link");
+      return;
+    }
+
+    setInviteLink(Linking.createURL(`/invite/${invite.token}`));
   };
 
   return (
@@ -25,8 +53,17 @@ export default function NewTally() {
           Who&apos;s this tally with? This is just a label for you until they join.
         </ThemedText>
         <TextField label="Partner's name" value={partnerLabel} onChangeText={setPartnerLabel} />
+        {error ? (
+          <ThemedText preset="body" color="debit">
+            {error}
+          </ThemedText>
+        ) : null}
         {inviteLink ? null : (
-          <Button label="Create tally & get invite link" onPress={handleCreate} />
+          <Button
+            label={submitting ? "Creating…" : "Create tally & get invite link"}
+            onPress={handleCreate}
+            disabled={submitting}
+          />
         )}
       </View>
 

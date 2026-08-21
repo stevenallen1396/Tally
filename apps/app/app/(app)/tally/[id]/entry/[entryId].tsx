@@ -1,17 +1,85 @@
-import { useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
 import { View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
 import { TextField } from "@/components/TextField";
+import { ThemedText } from "@/components/ThemedText";
+import { useSession } from "@/lib/SessionProvider";
+import { supabase } from "@/lib/supabase";
 
-// TODO(phase 2): load the `entries` row, allow free edit/delete by
-// created_by = auth.uid() (enforced server-side via RLS too).
 export default function EditEntry() {
-  const { id: _id, entryId: _entryId } = useLocalSearchParams<{ id: string; entryId: string }>();
+  const { entryId } = useLocalSearchParams<{ id: string; entryId: string }>();
+  const { session } = useSession();
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
+  const [createdBy, setCreatedBy] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from("entries")
+      .select("amount_minor, note, created_by")
+      .eq("id", entryId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) {
+          setAmount((data.amount_minor / 100).toString());
+          setNote(data.note ?? "");
+          setCreatedBy(data.created_by);
+        }
+        setLoading(false);
+      });
+  }, [entryId]);
+
+  const isOwner = createdBy === session?.user.id;
+
+  const handleSave = async () => {
+    const amountMinor = Math.round(Number(amount) * 100);
+    if (!amountMinor || amountMinor <= 0) return;
+    setError(null);
+    setSubmitting(true);
+    const { error: updateError } = await supabase
+      .from("entries")
+      .update({ amount_minor: amountMinor, note: note.trim() || null, updated_at: new Date().toISOString() })
+      .eq("id", entryId);
+    setSubmitting(false);
+    if (updateError) {
+      setError(updateError.message);
+      return;
+    }
+    router.back();
+  };
+
+  const handleDelete = async () => {
+    setError(null);
+    setSubmitting(true);
+    const { error: deleteError } = await supabase
+      .from("entries")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", entryId);
+    setSubmitting(false);
+    if (deleteError) {
+      setError(deleteError.message);
+      return;
+    }
+    router.back();
+  };
+
+  if (loading) return <Screen />;
+
+  if (!isOwner) {
+    return (
+      <Screen>
+        <ThemedText preset="body" color="secondary">
+          Only whoever logged this entry can edit or delete it.
+        </ThemedText>
+      </Screen>
+    );
+  }
 
   return (
     <Screen>
@@ -23,8 +91,13 @@ export default function EditEntry() {
           keyboardType="decimal-pad"
         />
         <TextField label="What for?" value={note} onChangeText={setNote} />
-        <Button label="Save changes" onPress={() => {}} />
-        <Button label="Delete entry" variant="secondary" onPress={() => {}} />
+        {error ? (
+          <ThemedText preset="body" color="debit">
+            {error}
+          </ThemedText>
+        ) : null}
+        <Button label={submitting ? "Saving…" : "Save changes"} onPress={handleSave} disabled={submitting} />
+        <Button label="Delete entry" variant="secondary" onPress={handleDelete} disabled={submitting} />
       </View>
     </Screen>
   );

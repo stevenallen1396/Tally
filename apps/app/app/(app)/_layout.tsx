@@ -1,9 +1,20 @@
-import { Stack } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 
-// TODO(phase 2): redirect to /(auth)/welcome when there's no Supabase session
-// (full account or anonymous guest). RLS already scopes all data server-side,
-// so this guard only exists to route users to the right entry screen.
+import { useSession } from "@/lib/SessionProvider";
+
+// RLS already scopes all data server-side — this guard only exists to route
+// signed-out users to the right entry screen, not for security.
 export default function AppLayout() {
+  const { session, loading } = useSession();
+
+  if (loading) {
+    return null;
+  }
+
+  if (!session) {
+    return <Redirect href="/(auth)/welcome" />;
+  }
+
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="tally/new" options={{ headerShown: true, title: "Start a tally" }} />

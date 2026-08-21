@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Pressable, View } from "react-native";
 
@@ -6,23 +6,53 @@ import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
 import { TextField } from "@/components/TextField";
 import { ThemedText } from "@/components/ThemedText";
+import { useTallyPartner } from "@/hooks/useTallyPartner";
+import { useSession } from "@/lib/SessionProvider";
+import { supabase } from "@/lib/supabase";
 import { useTheme } from "@/theme/ThemeProvider";
 
 type Mode = "chat" | "manual";
 
 // TODO(phase 3): "chat" mode POSTs { tally_id, raw_text } to the `parse-entry`
 // edge function, then shows the parsed result here for the user to confirm
-// before writing to `entries` — parsing never writes directly.
-// TODO(phase 2): "manual" mode writes straight to `entries` (amount, direction, note).
-// Manual stays available even after chat parsing ships — it's the fallback, not a replacement.
+// before writing to `entries` — parsing never writes directly. Manual stays
+// available even after chat parsing ships — it's the fallback, not a replacement.
 export default function AddEntry() {
-  const { id: _id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
-  const [mode, setMode] = useState<Mode>("chat");
+  const { session } = useSession();
+  const { partnerId } = useTallyPartner(id);
+  const [mode, setMode] = useState<Mode>("manual");
   const [chatText, setChatText] = useState("");
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [direction, setDirection] = useState<"i_owe" | "they_owe">("they_owe");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleAddEntry = async () => {
+    const amountMinor = Math.round(Number(amount) * 100);
+    if (!session || !partnerId || !amountMinor || amountMinor <= 0) return;
+
+    setError(null);
+    setSubmitting(true);
+    const { error: insertError } = await supabase.from("entries").insert({
+      tally_id: id,
+      debtor_id: direction === "i_owe" ? session.user.id : partnerId,
+      creditor_id: direction === "i_owe" ? partnerId : session.user.id,
+      amount_minor: amountMinor,
+      note: note.trim() || null,
+      source: "manual",
+      created_by: session.user.id,
+    });
+    setSubmitting(false);
+
+    if (insertError) {
+      setError(insertError.message);
+      return;
+    }
+    router.back();
+  };
 
   return (
     <Screen>
@@ -58,10 +88,9 @@ export default function AddEntry() {
             multiline
           />
           <ThemedText preset="ledgerMeta" color="secondary">
-            Type it, or tap the mic to dictate. We&apos;ll show you what we understood before saving
-            anything.
+            Coming soon — for now, use Manual to add an entry.
           </ThemedText>
-          <Button label="Continue" onPress={() => {}} />
+          <Button label="Continue" onPress={() => {}} disabled />
         </View>
       ) : (
         <View style={{ gap: 16 }}>
@@ -106,7 +135,16 @@ export default function AddEntry() {
             keyboardType="decimal-pad"
           />
           <TextField label="What for?" value={note} onChangeText={setNote} />
-          <Button label="Add entry" onPress={() => {}} />
+          {error ? (
+            <ThemedText preset="body" color="debit">
+              {error}
+            </ThemedText>
+          ) : null}
+          <Button
+            label={submitting ? "Adding…" : "Add entry"}
+            onPress={handleAddEntry}
+            disabled={submitting || !partnerId || !Number(amount)}
+          />
         </View>
       )}
     </Screen>

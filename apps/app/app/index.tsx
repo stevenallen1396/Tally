@@ -1,7 +1,23 @@
 import { Redirect } from "expo-router";
 
-// TODO(phase 2): branch on Supabase session — full/guest session -> (app)/(tabs)/dashboard,
-// no session -> (auth)/welcome. Auth isn't wired up yet, so this always sends to welcome.
+import { useProfile } from "@/hooks/useProfile";
+import { useSession } from "@/lib/SessionProvider";
+
 export default function Index() {
-  return <Redirect href="/(auth)/welcome" />;
+  const { session, loading: sessionLoading } = useSession();
+  const { profile, loading: profileLoading } = useProfile();
+
+  if (sessionLoading || (session && profileLoading)) {
+    return null;
+  }
+
+  if (!session) {
+    return <Redirect href="/(auth)/welcome" />;
+  }
+
+  if (!profile) {
+    return <Redirect href="/(auth)/create-profile" />;
+  }
+
+  return <Redirect href="/(app)/(tabs)/dashboard" />;
 }

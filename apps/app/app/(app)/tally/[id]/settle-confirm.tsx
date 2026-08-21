@@ -1,28 +1,124 @@
-import { useLocalSearchParams } from "expo-router";
+import { formatAbsGBP } from "@tally/shared";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
 import { View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
 import { ThemedText } from "@/components/ThemedText";
+import { useTallyPartner } from "@/hooks/useTallyPartner";
+import { useSession } from "@/lib/SessionProvider";
+import { supabase } from "@/lib/supabase";
 
-// TODO(phase 4): shown to the non-initiator when a `settlements` row is
-// pending. Confirm -> status='confirmed' (trigger nets the balance to zero
-// via a reconciling entry). Decline -> status='declined', no balance change.
+type PendingSettlement = {
+  id: string;
+  amount_minor: number;
+  debtor_id: string;
+  initiated_by: string;
+};
+
 export default function SettleConfirm() {
-  const { id: _id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { session } = useSession();
+  const { partnerName } = useTallyPartner(id);
+  const [settlement, setSettlement] = useState<PendingSettlement | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from("settlements")
+      .select("id, amount_minor, debtor_id, initiated_by")
+      .eq("tally_id", id)
+      .eq("status", "pending")
+      .maybeSingle()
+      .then(({ data }) => {
+        setSettlement(data);
+        setLoading(false);
+      });
+  }, [id]);
+
+  const isInitiator = settlement?.initiated_by === session?.user.id;
+
+  const respond = async (status: "confirmed" | "declined" | "cancelled") => {
+    if (!settlement || !session) return;
+    setError(null);
+    setSubmitting(true);
+    const { error: updateError } = await supabase
+      .from("settlements")
+      .update({
+        status,
+        confirmed_by: status === "confirmed" ? session.user.id : null,
+        confirmed_at: status === "confirmed" ? new Date().toISOString() : null,
+      })
+      .eq("id", settlement.id);
+    setSubmitting(false);
+    if (updateError) {
+      setError(updateError.message);
+      return;
+    }
+    router.back();
+  };
+
+  if (loading) return <Screen />;
+
+  if (!settlement) {
+    return (
+      <Screen>
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <ThemedText preset="body" color="secondary">
+            No settlement is pending on this tally.
+          </ThemedText>
+        </View>
+      </Screen>
+    );
+  }
+
+  const youAreOwed = settlement.debtor_id !== session?.user.id;
 
   return (
     <Screen>
       <View style={{ flex: 1, justifyContent: "center", gap: 12, alignItems: "center" }}>
-        <ThemedText preset="headingScreen">Confirm settlement</ThemedText>
+        <ThemedText preset="headingScreen">
+          {isInitiator ? "Settlement proposed" : "Confirm settlement"}
+        </ThemedText>
+        <ThemedText preset="ledgerBalance" color={youAreOwed ? "credit" : "debit"}>
+          {formatAbsGBP(settlement.amount_minor)}
+        </ThemedText>
         <ThemedText preset="body" color="secondary" style={{ textAlign: "center" }}>
-          Georgia says you&apos;re settled up. Do you agree?
+          {isInitiator
+            ? `Waiting for ${partnerName} to confirm you're settled up.`
+            : `${partnerName} says you're settled up. Do you agree?`}
         </ThemedText>
       </View>
-      <View style={{ gap: 10 }}>
-        <Button label="Confirm, we're settled" onPress={() => {}} />
-        <Button label="Decline" variant="secondary" onPress={() => {}} />
-      </View>
+      {error ? (
+        <ThemedText preset="body" color="debit" style={{ textAlign: "center", marginBottom: 12 }}>
+          {error}
+        </ThemedText>
+      ) : null}
+      {isInitiator ? (
+        <Button
+          label="Cancel proposal"
+          variant="secondary"
+          disabled={submitting}
+          onPress={() => respond("cancelled")}
+        />
+      ) : (
+        <View style={{ gap: 10 }}>
+          <Button
+            label="Confirm, we're settled"
+            onPress={() => respond("confirmed")}
+            disabled={submitting}
+          />
+          <Button
+            label="Decline"
+            variant="secondary"
+            onPress={() => respond("declined")}
+            disabled={submitting}
+          />
+        </View>
+      )}
     </Screen>
   );
 }

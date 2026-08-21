@@ -1,5 +1,5 @@
 import { formatMinorGBP } from "@tally/shared";
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
 import { useTheme } from "@/theme/ThemeProvider";
 
@@ -12,12 +12,15 @@ export type EntryRowData = {
   createdAt: string; // pre-formatted for now
 };
 
-export function EntryRow({ data }: { data: EntryRowData }) {
+export function EntryRow({ data, onPress }: { data: EntryRowData; onPress?: () => void }) {
   const { colors } = useTheme();
   const isCredit = data.amountMinor >= 0;
 
   return (
-    <View style={[styles.row, { borderColor: colors.border }]}>
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [styles.row, { borderColor: colors.border, opacity: pressed ? 0.7 : 1 }]}
+    >
       <View style={{ flex: 1, gap: 2 }}>
         <ThemedText preset="body">{data.note}</ThemedText>
         <ThemedText preset="ledgerMeta" color="secondary">
@@ -27,7 +30,7 @@ export function EntryRow({ data }: { data: EntryRowData }) {
       <ThemedText preset="ledgerAmount" color={isCredit ? "credit" : "debit"}>
         {formatMinorGBP(data.amountMinor)}
       </ThemedText>
-    </View>
+    </Pressable>
   );
 }
 

@@ -1,15 +1,29 @@
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
+import { useState } from "react";
 import { View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
 import { ThemedText } from "@/components/ThemedText";
+import { supabase } from "@/lib/supabase";
 
-// TODO(phase 4): insert a `settlements` row (status='pending') for the
-// current outstanding balance. Confirming is a separate action the OTHER
-// party takes on settle-confirm.tsx — this screen only proposes it.
 export default function SettleUp() {
-  const { id: _id } = useLocalSearchParams<{ id: string }>();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handlePropose = async () => {
+    setError(null);
+    setSubmitting(true);
+    const { error: rpcError } = await supabase.rpc("propose_settlement", { p_tally_id: id });
+    setSubmitting(false);
+
+    if (rpcError) {
+      setError(rpcError.message);
+      return;
+    }
+    router.back();
+  };
 
   return (
     <Screen>
@@ -20,7 +34,16 @@ export default function SettleUp() {
           money — just resets the tally to zero.
         </ThemedText>
       </View>
-      <Button label="Propose settlement" onPress={() => {}} />
+      {error ? (
+        <ThemedText preset="body" color="debit" style={{ textAlign: "center", marginBottom: 12 }}>
+          {error}
+        </ThemedText>
+      ) : null}
+      <Button
+        label={submitting ? "Proposing…" : "Propose settlement"}
+        onPress={handlePropose}
+        disabled={submitting}
+      />
     </Screen>
   );
 }
