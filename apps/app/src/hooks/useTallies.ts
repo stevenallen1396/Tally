@@ -60,8 +60,8 @@ async function fetchTallies(userId: string): Promise<TallyCardData[]> {
     const otherUserId = otherUserIdByTally.get(tallyId);
     const awaitingPartner = !otherUserId;
     const partnerName = otherUserId
-      ? (displayNameByUserId.get(otherUserId) ?? "your tally partner")
-      : (pendingLabelByTally.get(tallyId) ?? "your tally partner");
+      ? (displayNameByUserId.get(otherUserId) ?? "your buddy")
+      : (pendingLabelByTally.get(tallyId) ?? "your buddy");
     return {
       id: tallyId,
       partnerName,

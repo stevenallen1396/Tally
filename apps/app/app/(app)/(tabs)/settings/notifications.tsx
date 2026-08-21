@@ -49,7 +49,7 @@ export default function NotificationSettings() {
           <ThemedText preset="ledgerMeta" color="secondary">
             {unsupported
               ? "Not available on web — use the app on your phone."
-              : "New entries and settlement requests from your tally partners."}
+              : "New entries and settlement requests from your buddies."}
           </ThemedText>
         </View>
         <Switch

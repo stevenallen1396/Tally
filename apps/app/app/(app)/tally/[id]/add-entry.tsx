@@ -172,8 +172,8 @@ export default function AddEntry() {
               </ThemedText>
               {parsed.name_mismatch ? (
                 <ThemedText preset="ledgerMeta" color="debit">
-                  This mentions a name that doesn&apos;t match your tally partner — double-check
-                  before confirming.
+                  This mentions a name that doesn&apos;t match your buddy — double-check before
+                  confirming.
                 </ThemedText>
               ) : null}
               {parsed.confidence === "low" ? (

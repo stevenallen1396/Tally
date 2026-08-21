@@ -54,7 +54,7 @@ export default function NewTally() {
         <ThemedText preset="body" color="secondary">
           Who&apos;s this tally with? This is just a label for you until they join.
         </ThemedText>
-        <TextField label="Partner's name" value={partnerLabel} onChangeText={setPartnerLabel} />
+        <TextField label="Buddy's name" value={partnerLabel} onChangeText={setPartnerLabel} />
         {error ? (
           <ThemedText preset="body" color="debit">
             {error}

@@ -36,7 +36,7 @@ export default function CreateProfile() {
       <Stack.Screen options={{ headerShown: true, title: "Create profile" }} />
       <View style={{ gap: 16, marginTop: 12 }}>
         <ThemedText preset="body" color="secondary">
-          This is the name your tally partners will see.
+          This is the name your buddies will see.
         </ThemedText>
         <TextField label="Display name" value={displayName} onChangeText={setDisplayName} />
         {error ? (

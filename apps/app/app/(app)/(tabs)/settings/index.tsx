@@ -70,10 +70,17 @@ export default function SettingsIndex() {
     <Screen style={{ gap: 12 }}>
       <ThemedText preset="headingScreen">Settings</ThemedText>
       {isGuest ? (
-        <SettingsRow
-          label="You're a guest — save your account"
-          onPress={() => router.push("/(app)/(tabs)/settings/upgrade-account")}
-        />
+        <>
+          <SettingsRow
+            label="You're a guest — save your account"
+            onPress={() => router.push("/(app)/(tabs)/settings/upgrade-account")}
+          />
+          <Pressable onPress={() => router.push("/(auth)/sign-in")} style={{ paddingVertical: 4 }}>
+            <ThemedText preset="body" color="secondary" style={{ textDecorationLine: "underline" }}>
+              Already have an account? Sign in
+            </ThemedText>
+          </Pressable>
+        </>
       ) : null}
       <SettingsRow label="Profile" onPress={() => router.push("/(app)/(tabs)/settings/profile")} />
       <SettingsRow

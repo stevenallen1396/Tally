@@ -18,7 +18,7 @@ export function SmartBackButton({ fallbackHref }: { fallbackHref: Href }) {
     <Pressable
       onPress={() => goBackOrReplace(fallbackHref)}
       hitSlop={12}
-      style={{ paddingRight: 16, paddingVertical: 4 }}
+      style={{ paddingLeft: 8, paddingRight: 16, paddingVertical: 4 }}
     >
       <Ionicons name="chevron-back" size={26} color={colors.accentPrimary} />
     </Pressable>

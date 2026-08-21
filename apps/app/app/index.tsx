@@ -1,23 +1,8 @@
 import { Redirect } from "expo-router";
 
-import { useProfile } from "@/hooks/useProfile";
-import { useSession } from "@/lib/SessionProvider";
-
+// The (app) layout takes care of ensuring a session exists — anonymous if
+// there isn't one already — so every visitor, signed in or not, lands
+// straight on "Start a tally" rather than a sign-in gate.
 export default function Index() {
-  const { session, loading: sessionLoading } = useSession();
-  const { profile, loading: profileLoading } = useProfile();
-
-  if (sessionLoading || (session && profileLoading)) {
-    return null;
-  }
-
-  if (!session) {
-    return <Redirect href="/(auth)/welcome" />;
-  }
-
-  if (!profile) {
-    return <Redirect href="/(auth)/create-profile" />;
-  }
-
   return <Redirect href="/(app)/tally/new" />;
 }

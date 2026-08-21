@@ -1,12 +1,16 @@
-import { Redirect, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import { useEffect } from "react";
 
 import { useSession } from "@/lib/SessionProvider";
 import { registerForPushNotifications } from "@/lib/pushNotifications";
+import { supabase } from "@/lib/supabase";
 import { useStackHeaderOptions } from "@/theme/stackHeaderOptions";
 
-// RLS already scopes all data server-side — this guard only exists to route
-// signed-out users to the right entry screen, not for security.
+// RLS already scopes all data server-side — this guard's job is just making
+// sure *some* session exists before rendering. Signed-out visitors get a
+// silent anonymous session (the same mechanism invited guests already use)
+// instead of being routed to a sign-in gate — starting a tally never
+// requires an account; creating one is an optional prompt from Settings.
 export default function AppLayout() {
   const { session, loading } = useSession();
   const headerOptions = useStackHeaderOptions();
@@ -17,12 +21,14 @@ export default function AppLayout() {
     }
   }, [session]);
 
-  if (loading) {
-    return null;
-  }
+  useEffect(() => {
+    if (!loading && !session) {
+      supabase.auth.signInAnonymously();
+    }
+  }, [loading, session]);
 
-  if (!session) {
-    return <Redirect href="/(auth)/welcome" />;
+  if (loading || !session) {
+    return null;
   }
 
   return (
