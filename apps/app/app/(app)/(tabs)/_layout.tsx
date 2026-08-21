@@ -19,6 +19,7 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: colors.accentPrimary,
         tabBarInactiveTintColor: colors.textSecondary,
+        tabBarShowLabel: false,
         tabBarStyle: {
           position: "absolute",
           left: (screenWidth - PILL_WIDTH) / 2,
@@ -40,13 +41,9 @@ export default function TabsLayout() {
           }),
         },
         tabBarItemStyle: {
-          paddingTop: 2,
-        },
-        tabBarIconStyle: {
-          marginBottom: -2,
-        },
-        tabBarLabelStyle: {
-          fontSize: 9,
+          height: PILL_HEIGHT,
+          justifyContent: "center",
+          alignItems: "center",
         },
       }}
     >
@@ -54,14 +51,14 @@ export default function TabsLayout() {
         name="dashboard/index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={20} color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="notifications/index"
         options={{
           title: "Activity",
-          tabBarIcon: ({ color }) => <Ionicons name="list-outline" size={20} color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons name="list-outline" size={24} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -69,7 +66,7 @@ export default function TabsLayout() {
         options={{
           title: "Settings",
           headerShown: false,
-          tabBarIcon: ({ color }) => <Ionicons name="settings-outline" size={20} color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons name="settings-outline" size={24} color={color} />,
         }}
       />
     </Tabs>

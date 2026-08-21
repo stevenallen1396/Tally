@@ -3,11 +3,13 @@ import { useEffect } from "react";
 
 import { useSession } from "@/lib/SessionProvider";
 import { registerForPushNotifications } from "@/lib/pushNotifications";
+import { useStackHeaderOptions } from "@/theme/stackHeaderOptions";
 
 // RLS already scopes all data server-side — this guard only exists to route
 // signed-out users to the right entry screen, not for security.
 export default function AppLayout() {
   const { session, loading } = useSession();
+  const headerOptions = useStackHeaderOptions();
 
   useEffect(() => {
     if (session) {
@@ -24,7 +26,7 @@ export default function AppLayout() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack screenOptions={{ headerShown: false, ...headerOptions }}>
       <Stack.Screen name="tally/new" options={{ headerShown: true, title: "Start a tally" }} />
       <Stack.Screen name="tally/[id]/index" options={{ headerShown: true, title: "" }} />
       <Stack.Screen
