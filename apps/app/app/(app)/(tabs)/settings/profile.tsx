@@ -12,6 +12,21 @@ import { useSession } from "@/lib/SessionProvider";
 import { supabase } from "@/lib/supabase";
 import { useTheme } from "@/theme/ThemeProvider";
 
+// Picked image URIs are `blob:`/`content:`/`ph:` on web/native and never carry
+// a real file extension, so the storage path extension has to come from the
+// asset's MIME type instead of parsing the URI.
+const MIME_TO_EXT: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/heic": "heic",
+  "image/heif": "heif",
+};
+
+function extensionFromMimeType(mimeType: string | null | undefined) {
+  return MIME_TO_EXT[mimeType ?? ""] ?? "jpg";
+}
+
 export default function Profile() {
   const { colors } = useTheme();
   const { session } = useSession();
@@ -60,7 +75,7 @@ export default function Profile() {
     setUploadingAvatar(true);
     try {
       const arraybuffer = await fetch(image.uri).then((res) => res.arrayBuffer());
-      const fileExt = image.uri.split(".").pop()?.toLowerCase() ?? "jpg";
+      const fileExt = extensionFromMimeType(image.mimeType);
       const path = `${session.user.id}/avatar.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
