@@ -10,25 +10,93 @@ export type NotificationItem = {
   body: string;
   readAt: string | null;
   createdAt: string;
+  partnerName: string | null;
+  description: string | null;
+  amountMinor: number | null; // signed relative to viewer (positive = credit, negative = debit); null if unknown
+};
+
+type NotificationRow = {
+  id: string;
+  tally_id: string | null;
+  title: string;
+  body: string;
+  read_at: string | null;
+  created_at: string;
+  data: { entry_id?: string; settlement_id?: string } | null;
 };
 
 async function fetchNotifications(userId: string): Promise<NotificationItem[]> {
   const { data, error } = await supabase
     .from("notifications")
-    .select("id, tally_id, title, body, read_at, created_at")
+    .select("id, tally_id, title, body, read_at, created_at, data")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(50);
   if (error) throw error;
 
-  return (data ?? []).map((row) => ({
-    id: row.id,
-    tallyId: row.tally_id,
-    title: row.title,
-    body: row.body,
-    readAt: row.read_at,
-    createdAt: row.created_at,
-  }));
+  const rows = (data ?? []) as NotificationRow[];
+
+  const tallyIds = [...new Set(rows.map((row) => row.tally_id).filter((id): id is string => !!id))];
+  const entryIds = [...new Set(rows.map((row) => row.data?.entry_id).filter((id): id is string => !!id))];
+  const settlementIds = [
+    ...new Set(rows.map((row) => row.data?.settlement_id).filter((id): id is string => !!id)),
+  ];
+
+  const [otherMembers, entries, settlementEntries] = await Promise.all([
+    tallyIds.length > 0
+      ? supabase.from("tally_members").select("tally_id, user_id").in("tally_id", tallyIds).neq("user_id", userId)
+      : Promise.resolve({ data: [], error: null }),
+    entryIds.length > 0
+      ? supabase.from("entries").select("id, debtor_id, amount_minor, note").in("id", entryIds)
+      : Promise.resolve({ data: [], error: null }),
+    settlementIds.length > 0
+      ? supabase
+          .from("entries")
+          .select("settlement_id, debtor_id, amount_minor, note")
+          .in("settlement_id", settlementIds)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
+
+  const otherUserIdByTally = new Map((otherMembers.data ?? []).map((m) => [m.tally_id, m.user_id]));
+  const otherUserIds = [...new Set(otherUserIdByTally.values())];
+  const { data: profiles } =
+    otherUserIds.length > 0
+      ? await supabase.from("profiles").select("id, display_name").in("id", otherUserIds)
+      : { data: [] };
+  const displayNameByUserId = new Map((profiles ?? []).map((p) => [p.id, p.display_name]));
+
+  const entryById = new Map((entries.data ?? []).map((entry) => [entry.id, entry]));
+  const entryBySettlementId = new Map((settlementEntries.data ?? []).map((entry) => [entry.settlement_id, entry]));
+
+  return rows.map((row) => {
+    const otherUserId = row.tally_id ? otherUserIdByTally.get(row.tally_id) : undefined;
+    const partnerName = otherUserId ? (displayNameByUserId.get(otherUserId) ?? null) : null;
+
+    const linkedEntry = row.data?.entry_id
+      ? entryById.get(row.data.entry_id)
+      : row.data?.settlement_id
+        ? entryBySettlementId.get(row.data.settlement_id)
+        : undefined;
+
+    const amountMinor = linkedEntry
+      ? linkedEntry.debtor_id === userId
+        ? -linkedEntry.amount_minor
+        : linkedEntry.amount_minor
+      : null;
+    const description = linkedEntry?.note ?? null;
+
+    return {
+      id: row.id,
+      tallyId: row.tally_id,
+      title: row.title,
+      body: row.body,
+      readAt: row.read_at,
+      createdAt: row.created_at,
+      partnerName,
+      description,
+      amountMinor,
+    };
+  });
 }
 
 export function useNotifications() {

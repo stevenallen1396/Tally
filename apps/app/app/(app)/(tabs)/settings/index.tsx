@@ -80,15 +80,17 @@ export default function SettingsIndex() {
         onPress={() => router.push("/(app)/(tabs)/settings/notifications")}
       />
       <AppearanceToggle />
-      <SettingsRow label="Sign out" onPress={() => supabase.auth.signOut()} />
       <View style={{ flex: 1 }} />
-      <ThemedText
-        preset="ledgerMeta"
-        color="secondary"
-        style={{ textAlign: "center", marginBottom: 75 }}
-      >
-        Tally, part of Folio
-      </ThemedText>
+      <View style={{ gap: 4, marginBottom: 75 }}>
+        <ThemedText preset="ledgerMeta" color="secondary" style={{ textAlign: "center" }}>
+          Tally, part of Folio
+        </ThemedText>
+        <Pressable onPress={() => supabase.auth.signOut()} style={{ alignSelf: "center", paddingVertical: 4 }}>
+          <ThemedText preset="body" color="secondary" style={{ textAlign: "center" }}>
+            Sign out
+          </ThemedText>
+        </Pressable>
+      </View>
     </Screen>
   );
 }

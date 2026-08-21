@@ -1,3 +1,4 @@
+import { formatAbsGBP } from "@tally/shared";
 import { useRouter } from "expo-router";
 import { FlatList, Pressable, View } from "react-native";
 
@@ -33,41 +34,64 @@ export default function Notifications() {
             </View>
           )
         }
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={() => {
-              if (!item.readAt) markRead(item.id);
-              if (item.tallyId) router.push(`/(app)/tally/${item.tallyId}`);
-            }}
-            style={{
-              flexDirection: "row",
-              alignItems: "flex-start",
-              gap: 10,
-              paddingVertical: 14,
-              borderBottomWidth: 1,
-              borderBottomColor: colors.border,
-            }}
-          >
-            <View
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: 4,
-                marginTop: 6,
-                backgroundColor: item.readAt ? "transparent" : colors.accentPrimary,
+        renderItem={({ item }) => {
+          const isEven = item.amountMinor === 0;
+          const isCredit = (item.amountMinor ?? 0) >= 0;
+          const amountColor = isEven ? colors.textSecondary : isCredit ? colors.credit : colors.debit;
+          const amountBg = isEven ? colors.background : isCredit ? colors.creditBg : colors.debitBg;
+
+          return (
+            <Pressable
+              onPress={() => {
+                if (!item.readAt) markRead(item.id);
+                if (item.tallyId) router.push(`/(app)/tally/${item.tallyId}`);
               }}
-            />
-            <View style={{ flex: 1, gap: 2 }}>
-              <ThemedText preset="bodyEmphasis">{item.title}</ThemedText>
-              <ThemedText preset="body" color="secondary">
-                {item.body}
-              </ThemedText>
-              <ThemedText preset="ledgerMeta" color="secondary">
-                {formatWhen(item.createdAt)}
-              </ThemedText>
-            </View>
-          </Pressable>
-        )}
+              style={{
+                flexDirection: "row",
+                alignItems: "flex-start",
+                gap: 10,
+                paddingVertical: 14,
+                borderBottomWidth: 1,
+                borderBottomColor: colors.border,
+              }}
+            >
+              <View
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: 4,
+                  marginTop: 6,
+                  backgroundColor: item.readAt ? "transparent" : colors.accentPrimary,
+                }}
+              />
+              <View style={{ flex: 1, gap: 2 }}>
+                <ThemedText preset="bodyEmphasis" style={{ fontSize: 17, lineHeight: 22 }}>
+                  {item.partnerName ?? "your tally partner"}
+                </ThemedText>
+                <ThemedText preset="body" color="secondary">
+                  {item.description ?? item.body}
+                </ThemedText>
+                <ThemedText preset="ledgerMeta" color="secondary">
+                  {formatWhen(item.createdAt)}
+                </ThemedText>
+              </View>
+              {item.amountMinor !== null ? (
+                <View
+                  style={{
+                    borderRadius: 10,
+                    paddingVertical: 6,
+                    paddingHorizontal: 10,
+                    backgroundColor: amountBg,
+                  }}
+                >
+                  <ThemedText preset="ledgerAmount" style={{ color: amountColor }}>
+                    {formatAbsGBP(item.amountMinor)}
+                  </ThemedText>
+                </View>
+              ) : null}
+            </Pressable>
+          );
+        }}
       />
     </Screen>
   );
