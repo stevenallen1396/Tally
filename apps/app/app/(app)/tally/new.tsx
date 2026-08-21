@@ -31,7 +31,7 @@ export default function NewTally() {
 
     const { data: invite, error: inviteError } = await supabase.rpc("create_invite", {
       p_tally_id: tally.id,
-      p_invitee_label: partnerLabel.trim() || undefined,
+      p_invitee_label: partnerLabel.trim(),
     });
     setSubmitting(false);
 
@@ -64,7 +64,7 @@ export default function NewTally() {
           <Button
             label={submitting ? "Creating…" : "Create tally & get invite link"}
             onPress={handleCreate}
-            disabled={submitting}
+            disabled={submitting || !partnerLabel.trim()}
           />
         )}
       </View>

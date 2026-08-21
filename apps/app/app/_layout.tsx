@@ -1,3 +1,4 @@
+import { IBMPlexMono_400Regular, IBMPlexMono_700Bold } from "@expo-google-fonts/ibm-plex-mono";
 import {
   Manrope_400Regular,
   Manrope_500Medium,
@@ -5,7 +6,6 @@ import {
   Manrope_700Bold,
   Manrope_800ExtraBold,
 } from "@expo-google-fonts/manrope";
-import { SpaceMono_400Regular, SpaceMono_700Bold } from "@expo-google-fonts/space-mono";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -39,8 +39,8 @@ export default function RootLayout() {
     Manrope_600SemiBold,
     Manrope_700Bold,
     Manrope_800ExtraBold,
-    SpaceMono_400Regular,
-    SpaceMono_700Bold,
+    IBMPlexMono_400Regular,
+    IBMPlexMono_700Bold,
   });
 
   if (!fontsLoaded) {

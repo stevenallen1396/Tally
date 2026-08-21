@@ -20,9 +20,9 @@ export function TallyCard({ data, onPress }: { data: TallyCardData; onPress?: ()
   const balanceBg = isEven ? colors.background : isCredit ? colors.creditBg : colors.debitBg;
 
   const statusLabel = data.awaitingPartner
-    ? "Waiting to join"
+    ? "waiting to join"
     : isEven
-      ? "Evens stevens"
+      ? "evens stevens"
       : isCredit
         ? "owes you"
         : "you owe";

@@ -9,8 +9,8 @@ export const fontFamilies = {
   manropeSemiBold: "Manrope_600SemiBold",
   manropeBold: "Manrope_700Bold",
   manropeExtraBold: "Manrope_800ExtraBold",
-  spaceMonoRegular: "SpaceMono_400Regular",
-  spaceMonoBold: "SpaceMono_700Bold",
+  ibmPlexMonoRegular: "IBMPlexMono_400Regular",
+  ibmPlexMonoBold: "IBMPlexMono_700Bold",
   genty: "Genty", // registered only if the local asset is present
 } as const;
 
@@ -36,8 +36,8 @@ export const typography = {
     },
   },
   ledger: {
-    balance: { fontFamily: fontFamilies.spaceMonoBold, fontSize: 32, lineHeight: 36 },
-    amount: { fontFamily: fontFamilies.spaceMonoRegular, fontSize: 17, lineHeight: 22 },
-    meta: { fontFamily: fontFamilies.spaceMonoRegular, fontSize: 12, lineHeight: 16 },
+    balance: { fontFamily: fontFamilies.ibmPlexMonoBold, fontSize: 32, lineHeight: 36 },
+    amount: { fontFamily: fontFamilies.ibmPlexMonoRegular, fontSize: 17, lineHeight: 22 },
+    meta: { fontFamily: fontFamilies.ibmPlexMonoRegular, fontSize: 12, lineHeight: 16 },
   },
 } as const;

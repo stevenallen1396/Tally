@@ -19,9 +19,9 @@ export default function TallyDetail() {
   const isEven = balanceMinor === 0;
   const isCredit = balanceMinor >= 0;
   const statusLabel = awaitingPartner
-    ? "Waiting to join"
+    ? "waiting to join"
     : isEven
-      ? "Evens stevens"
+      ? "evens stevens"
       : isCredit
         ? "owes you"
         : "you owe them";
