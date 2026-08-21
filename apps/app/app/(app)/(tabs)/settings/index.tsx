@@ -30,7 +30,7 @@ export default function SettingsIndex() {
       <ThemedText
         preset="ledgerMeta"
         color="secondary"
-        style={{ textAlign: "center", marginBottom: 90 }}
+        style={{ textAlign: "center", marginBottom: 75 }}
       >
         Tally, part of Folio
       </ThemedText>

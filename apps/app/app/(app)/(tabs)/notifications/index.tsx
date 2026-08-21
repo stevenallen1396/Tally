@@ -23,7 +23,7 @@ export default function Notifications() {
       <FlatList
         data={notifications}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 120 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 100 }}
         ListEmptyComponent={
           loading ? null : (
             <View style={{ paddingTop: 60, alignItems: "center" }}>

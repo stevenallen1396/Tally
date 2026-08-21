@@ -1,13 +1,17 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-import { Platform } from "react-native";
+import { Platform, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useTheme } from "@/theme/ThemeProvider";
 
+const PILL_WIDTH = 240;
+const PILL_HEIGHT = 52;
+
 export default function TabsLayout() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
+  const { width: screenWidth } = useWindowDimensions();
 
   return (
     <Tabs
@@ -17,11 +21,11 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
           position: "absolute",
-          left: 20,
-          right: 20,
+          left: (screenWidth - PILL_WIDTH) / 2,
+          width: PILL_WIDTH,
           bottom: insets.bottom + 16,
-          height: 64,
-          borderRadius: 32,
+          height: PILL_HEIGHT,
+          borderRadius: PILL_HEIGHT / 2,
           borderTopWidth: 0,
           backgroundColor: colors.surface,
           ...Platform.select({
@@ -36,7 +40,13 @@ export default function TabsLayout() {
           }),
         },
         tabBarItemStyle: {
-          paddingTop: 8,
+          paddingTop: 2,
+        },
+        tabBarIconStyle: {
+          marginBottom: -2,
+        },
+        tabBarLabelStyle: {
+          fontSize: 9,
         },
       }}
     >
@@ -44,14 +54,14 @@ export default function TabsLayout() {
         name="dashboard/index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color, size }) => <Ionicons name="home-outline" size={size} color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={20} color={color} />,
         }}
       />
       <Tabs.Screen
         name="notifications/index"
         options={{
           title: "Activity",
-          tabBarIcon: ({ color, size }) => <Ionicons name="pulse-outline" size={size} color={color} />,
+          tabBarIcon: ({ color }) => <Ionicons name="list-outline" size={20} color={color} />,
         }}
       />
       <Tabs.Screen
@@ -59,9 +69,7 @@ export default function TabsLayout() {
         options={{
           title: "Settings",
           headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="settings-outline" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color }) => <Ionicons name="settings-outline" size={20} color={color} />,
         }}
       />
     </Tabs>

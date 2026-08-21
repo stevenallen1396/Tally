@@ -19,7 +19,7 @@ export default function Dashboard() {
       <FlatList
         data={tallies}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 170, gap: 12 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 150, gap: 12 }}
         ListEmptyComponent={
           loading ? null : (
             <View style={{ paddingTop: 60, alignItems: "center", gap: 8 }}>
@@ -33,7 +33,7 @@ export default function Dashboard() {
           <TallyCard data={item} onPress={() => router.push(`/(app)/tally/${item.id}`)} />
         )}
       />
-      <View style={{ position: "absolute", left: 20, right: 20, bottom: 96 }}>
+      <View style={{ position: "absolute", left: 20, right: 20, bottom: 84 }}>
         <Link href="/(app)/tally/new" asChild>
           <Button label="Start a tally" />
         </Link>
