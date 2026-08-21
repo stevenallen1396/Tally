@@ -29,7 +29,7 @@ export default function SignIn() {
 
   return (
     <Screen>
-      <Stack.Screen options={{ headerShown: true, title: "Sign in" }} />
+      <Stack.Screen options={{ headerShown: true, title: "" }} />
       <View style={{ gap: 16, marginTop: 12 }}>
         <TextField
           label="Email"

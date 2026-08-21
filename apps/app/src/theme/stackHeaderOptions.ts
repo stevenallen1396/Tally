@@ -1,13 +1,15 @@
 import { useTheme } from "./ThemeProvider";
 
 /** Shared header styling for every Stack navigator, so headers match the
- * app's theme (cream/dark surface, Manrope, our colors) instead of the
- * default system look. Spread into `screenOptions`. */
+ * app's theme (Manrope, our colors) instead of the default system look.
+ * Uses `colors.background` (not `colors.surface`) so the header blends
+ * seamlessly into the screen's content instead of showing as a visibly
+ * different-toned bar above it. Spread into `screenOptions`. */
 export function useStackHeaderOptions() {
   const { colors, typography } = useTheme();
 
   return {
-    headerStyle: { backgroundColor: colors.surface },
+    headerStyle: { backgroundColor: colors.background },
     headerShadowVisible: false,
     headerTintColor: colors.accentPrimary,
     headerTitleStyle: {

@@ -27,10 +27,8 @@ function AppearanceToggle() {
 
   return (
     <View style={{ gap: 8 }}>
-      <ThemedText preset="label" color="secondary">
-        Appearance
-      </ThemedText>
       <View
+        accessibilityLabel="Appearance"
         style={{
           flexDirection: "row",
           borderRadius: 12,

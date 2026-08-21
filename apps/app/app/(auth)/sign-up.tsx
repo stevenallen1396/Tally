@@ -41,7 +41,7 @@ export default function SignUp() {
   if (checkEmail) {
     return (
       <Screen>
-        <Stack.Screen options={{ headerShown: true, title: "Create account" }} />
+        <Stack.Screen options={{ headerShown: true, title: "" }} />
         <View style={{ flex: 1, justifyContent: "center", gap: 8 }}>
           <ThemedText preset="headingScreen">Check your email</ThemedText>
           <ThemedText preset="body" color="secondary">
@@ -54,7 +54,7 @@ export default function SignUp() {
 
   return (
     <Screen>
-      <Stack.Screen options={{ headerShown: true, title: "Create account" }} />
+      <Stack.Screen options={{ headerShown: true, title: "" }} />
       <View style={{ gap: 16, marginTop: 12 }}>
         <TextField
           label="Email"
