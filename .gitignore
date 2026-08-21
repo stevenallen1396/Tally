@@ -15,3 +15,5 @@ supabase/.temp/
 .playwright-mcp/
 /*.png
 /*.jpeg
+.vercel
+.env*
