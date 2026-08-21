@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { supabase } from "@/lib/supabase";
 import { useSession } from "@/lib/SessionProvider";
@@ -10,14 +10,8 @@ export function useProfile() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!session) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- no async work to do; this *is* the result.
-      setProfile(null);
-      setLoading(false);
-      return;
-    }
-
+  const refetch = useCallback(() => {
+    if (!session) return;
     setLoading(true);
     supabase
       .from("profiles")
@@ -30,5 +24,15 @@ export function useProfile() {
       });
   }, [session]);
 
-  return { profile, loading };
+  useEffect(() => {
+    if (!session) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- no async work to do; this *is* the result.
+      setProfile(null);
+      setLoading(false);
+      return;
+    }
+    refetch();
+  }, [session, refetch]);
+
+  return { profile, loading, refetch };
 }

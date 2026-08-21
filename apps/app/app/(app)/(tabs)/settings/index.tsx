@@ -68,6 +68,7 @@ export default function SettingsIndex() {
 
   return (
     <Screen style={{ gap: 12 }}>
+      <ThemedText preset="headingScreen">Settings</ThemedText>
       {isGuest ? (
         <SettingsRow
           label="You're a guest — save your account"
@@ -80,17 +81,19 @@ export default function SettingsIndex() {
         onPress={() => router.push("/(app)/(tabs)/settings/notifications")}
       />
       <AppearanceToggle />
-      <View style={{ flex: 1 }} />
-      <View style={{ gap: 4, marginBottom: 75 }}>
-        <ThemedText preset="ledgerMeta" color="secondary" style={{ textAlign: "center" }}>
-          Tally, part of Folio
+      <Pressable onPress={() => supabase.auth.signOut()} style={{ alignSelf: "center", paddingVertical: 4 }}>
+        <ThemedText preset="body" color="secondary" style={{ textDecorationLine: "underline" }}>
+          Sign out
         </ThemedText>
-        <Pressable onPress={() => supabase.auth.signOut()} style={{ alignSelf: "center", paddingVertical: 4 }}>
-          <ThemedText preset="body" color="secondary" style={{ textAlign: "center" }}>
-            Sign out
-          </ThemedText>
-        </Pressable>
-      </View>
+      </Pressable>
+      <View style={{ flex: 1 }} />
+      <ThemedText
+        preset="ledgerMeta"
+        color="secondary"
+        style={{ textAlign: "center", marginBottom: 75 }}
+      >
+        Tally, part of Folio
+      </ThemedText>
     </Screen>
   );
 }

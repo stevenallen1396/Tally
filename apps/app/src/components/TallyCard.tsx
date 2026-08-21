@@ -3,11 +3,13 @@ import { Pressable, StyleSheet, View } from "react-native";
 
 import { useTheme } from "@/theme/ThemeProvider";
 
+import { Avatar } from "./Avatar";
 import { ThemedText } from "./ThemedText";
 
 export type TallyCardData = {
   id: string;
   partnerName: string;
+  partnerAvatarUrl: string | null;
   awaitingPartner: boolean;
   balanceMinor: number; // positive = they owe you (credit), negative = you owe them (debit)
 };
@@ -35,6 +37,7 @@ export function TallyCard({ data, onPress }: { data: TallyCardData; onPress?: ()
         { backgroundColor: colors.surface, borderColor: colors.border, opacity: pressed ? 0.85 : 1 },
       ]}
     >
+      {data.partnerAvatarUrl ? <Avatar uri={data.partnerAvatarUrl} size={40} /> : null}
       <View style={{ flex: 1, gap: 4 }}>
         <ThemedText preset="bodyEmphasis" style={{ fontSize: 19, lineHeight: 24 }}>
           {data.partnerName}

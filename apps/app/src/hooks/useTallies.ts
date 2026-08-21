@@ -24,7 +24,7 @@ async function fetchTallies(userId: string): Promise<TallyCardData[]> {
   const otherUserIds = (otherMembers ?? []).map((m) => m.user_id);
   const { data: profiles, error: profilesError } =
     otherUserIds.length > 0
-      ? await supabase.from("profiles").select("id, display_name").in("id", otherUserIds)
+      ? await supabase.from("profiles").select("id, display_name, avatar_url").in("id", otherUserIds)
       : { data: [], error: null };
   if (profilesError) throw profilesError;
 
@@ -36,6 +36,7 @@ async function fetchTallies(userId: string): Promise<TallyCardData[]> {
   if (entriesError) throw entriesError;
 
   const displayNameByUserId = new Map((profiles ?? []).map((p) => [p.id, p.display_name]));
+  const avatarUrlByUserId = new Map((profiles ?? []).map((p) => [p.id, p.avatar_url]));
   const otherUserIdByTally = new Map((otherMembers ?? []).map((m) => [m.tally_id, m.user_id]));
 
   const balanceByTally = new Map<string, number>();
@@ -64,6 +65,7 @@ async function fetchTallies(userId: string): Promise<TallyCardData[]> {
     return {
       id: tallyId,
       partnerName,
+      partnerAvatarUrl: (otherUserId ? avatarUrlByUserId.get(otherUserId) : null) ?? null,
       awaitingPartner,
       balanceMinor: balanceByTally.get(tallyId) ?? 0,
     };
