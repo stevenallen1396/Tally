@@ -1,16 +1,18 @@
-import { router, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import { TextField } from "@/components/TextField";
 import { ThemedText } from "@/components/ThemedText";
 import { useSession } from "@/lib/SessionProvider";
+import { goBackOrReplace } from "@/lib/navigation";
 import { supabase } from "@/lib/supabase";
 
 export default function EditEntry() {
-  const { entryId } = useLocalSearchParams<{ id: string; entryId: string }>();
+  const { id, entryId } = useLocalSearchParams<{ id: string; entryId: string }>();
   const { session } = useSession();
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
@@ -51,7 +53,7 @@ export default function EditEntry() {
       setError(updateError.message);
       return;
     }
-    router.back();
+    goBackOrReplace(`/(app)/tally/${id}`);
   };
 
   const handleDelete = async () => {
@@ -66,14 +68,23 @@ export default function EditEntry() {
       setError(deleteError.message);
       return;
     }
-    router.back();
+    goBackOrReplace(`/(app)/tally/${id}`);
   };
 
-  if (loading) return <Screen />;
+  const backButton = <SmartBackButton fallbackHref={`/(app)/tally/${id}`} />;
+
+  if (loading) {
+    return (
+      <Screen>
+        <Stack.Screen options={{ headerLeft: () => backButton }} />
+      </Screen>
+    );
+  }
 
   if (!isOwner) {
     return (
       <Screen>
+        <Stack.Screen options={{ headerLeft: () => backButton }} />
         <ThemedText preset="body" color="secondary">
           Only whoever logged this entry can edit or delete it.
         </ThemedText>
@@ -83,6 +94,7 @@ export default function EditEntry() {
 
   return (
     <Screen>
+      <Stack.Screen options={{ headerLeft: () => backButton }} />
       <View style={{ gap: 16 }}>
         <TextField
           label="Amount (£)"

@@ -1,10 +1,11 @@
 import { formatAbsGBP } from "@tally/shared";
-import { Link, useLocalSearchParams, useRouter } from "expo-router";
+import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { FlatList, View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { EntryRow } from "@/components/EntryRow";
 import { Screen } from "@/components/Screen";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import { ThemedText } from "@/components/ThemedText";
 import { useTallyDetail } from "@/hooks/useTallyDetail";
 import { useTheme } from "@/theme/ThemeProvider";
@@ -19,6 +20,11 @@ export default function TallyDetail() {
 
   return (
     <Screen style={{ padding: 0 }}>
+      <Stack.Screen
+        options={{
+          headerLeft: () => <SmartBackButton fallbackHref="/(app)/(tabs)/dashboard" />,
+        }}
+      />
       <View style={{ padding: 20, alignItems: "center", gap: 6 }}>
         <ThemedText preset="label" color="secondary">
           {partnerName || (loading ? "…" : "")}

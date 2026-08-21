@@ -1,13 +1,15 @@
-import { router, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Pressable, View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import { TextField } from "@/components/TextField";
 import { ThemedText } from "@/components/ThemedText";
 import { useTallyPartner } from "@/hooks/useTallyPartner";
 import { useSession } from "@/lib/SessionProvider";
+import { goBackOrReplace } from "@/lib/navigation";
 import { supabase } from "@/lib/supabase";
 import { useTheme } from "@/theme/ThemeProvider";
 
@@ -66,7 +68,7 @@ export default function AddEntry() {
       setError(insertError.message);
       return;
     }
-    router.back();
+    goBackOrReplace(`/(app)/tally/${id}`);
   };
 
   const handleParse = async () => {
@@ -104,6 +106,9 @@ export default function AddEntry() {
 
   return (
     <Screen>
+      <Stack.Screen
+        options={{ headerLeft: () => <SmartBackButton fallbackHref={`/(app)/tally/${id}`} /> }}
+      />
       <View style={{ flexDirection: "row", borderRadius: 12, borderWidth: 1, borderColor: colors.border, overflow: "hidden", marginBottom: 20 }}>
         {(["chat", "manual"] as Mode[]).map((option) => (
           <Pressable

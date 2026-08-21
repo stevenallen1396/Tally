@@ -1,9 +1,11 @@
 import * as Linking from "expo-linking";
+import { Stack } from "expo-router";
 import { useState } from "react";
 import { Share, View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import { TextField } from "@/components/TextField";
 import { ThemedText } from "@/components/ThemedText";
 import { supabase } from "@/lib/supabase";
@@ -43,6 +45,11 @@ export default function NewTally() {
 
   return (
     <Screen>
+      <Stack.Screen
+        options={{
+          headerLeft: () => <SmartBackButton fallbackHref="/(app)/(tabs)/dashboard" />,
+        }}
+      />
       <View style={{ gap: 16 }}>
         <ThemedText preset="body" color="secondary">
           Who&apos;s this tally with? This is just a label for you until they join.

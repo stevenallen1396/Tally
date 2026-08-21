@@ -1,13 +1,15 @@
 import { formatAbsGBP } from "@tally/shared";
-import { router, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import { ThemedText } from "@/components/ThemedText";
 import { useTallyPartner } from "@/hooks/useTallyPartner";
 import { useSession } from "@/lib/SessionProvider";
+import { goBackOrReplace } from "@/lib/navigation";
 import { supabase } from "@/lib/supabase";
 
 type PendingSettlement = {
@@ -58,14 +60,23 @@ export default function SettleConfirm() {
       setError(updateError.message);
       return;
     }
-    router.back();
+    goBackOrReplace(`/(app)/tally/${id}`);
   };
 
-  if (loading) return <Screen />;
+  const backButton = <SmartBackButton fallbackHref={`/(app)/tally/${id}`} />;
+
+  if (loading) {
+    return (
+      <Screen>
+        <Stack.Screen options={{ headerLeft: () => backButton }} />
+      </Screen>
+    );
+  }
 
   if (!settlement) {
     return (
       <Screen>
+        <Stack.Screen options={{ headerLeft: () => backButton }} />
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
           <ThemedText preset="body" color="secondary">
             No settlement is pending on this tally.
@@ -79,6 +90,7 @@ export default function SettleConfirm() {
 
   return (
     <Screen>
+      <Stack.Screen options={{ headerLeft: () => backButton }} />
       <View style={{ flex: 1, justifyContent: "center", gap: 12, alignItems: "center" }}>
         <ThemedText preset="headingScreen">
           {isInitiator ? "Settlement proposed" : "Confirm settlement"}

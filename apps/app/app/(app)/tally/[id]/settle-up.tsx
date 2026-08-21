@@ -1,10 +1,12 @@
-import { router, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
+import { SmartBackButton } from "@/components/SmartBackButton";
 import { ThemedText } from "@/components/ThemedText";
+import { goBackOrReplace } from "@/lib/navigation";
 import { supabase } from "@/lib/supabase";
 
 export default function SettleUp() {
@@ -22,11 +24,14 @@ export default function SettleUp() {
       setError(rpcError.message);
       return;
     }
-    router.back();
+    goBackOrReplace(`/(app)/tally/${id}`);
   };
 
   return (
     <Screen>
+      <Stack.Screen
+        options={{ headerLeft: () => <SmartBackButton fallbackHref={`/(app)/tally/${id}`} /> }}
+      />
       <View style={{ flex: 1, justifyContent: "center", gap: 12, alignItems: "center" }}>
         <ThemedText preset="headingScreen">Settle up?</ThemedText>
         <ThemedText preset="body" color="secondary" style={{ textAlign: "center" }}>
