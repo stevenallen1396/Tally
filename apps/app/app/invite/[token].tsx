@@ -1,16 +1,47 @@
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
+import { useState } from "react";
 import { View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
 import { ThemedText } from "@/components/ThemedText";
+import { useSession } from "@/lib/SessionProvider";
+import { supabase } from "@/lib/supabase";
 
-// TODO(phase 3): on mount, if there's no session call supabase.auth.signInAnonymously(),
-// then POST { token } to the `accept-invite` edge function. On success, redirect
-// to /(app)/tally/[id]. This route must work logged-out, on native or web, with
-// zero app install required.
 export default function InviteToken() {
-  const { token: _token } = useLocalSearchParams<{ token: string }>();
+  const { token } = useLocalSearchParams<{ token: string }>();
+  const { session, loading: sessionLoading } = useSession();
+  const [joining, setJoining] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleJoin = async () => {
+    setError(null);
+    setJoining(true);
+
+    let activeSession = session;
+    if (!activeSession) {
+      const { data, error: anonError } = await supabase.auth.signInAnonymously();
+      if (anonError || !data.session) {
+        setJoining(false);
+        setError(anonError?.message ?? "Couldn't start a session");
+        return;
+      }
+      activeSession = data.session;
+    }
+
+    const { data, error: acceptError } = await supabase.functions.invoke<{ tally_id: string }>(
+      "accept-invite",
+      { body: { token } },
+    );
+    setJoining(false);
+
+    if (acceptError || !data) {
+      setError(acceptError?.message ?? "Couldn't join this tally");
+      return;
+    }
+
+    router.replace(`/(app)/tally/${data.tally_id}`);
+  };
 
   return (
     <Screen>
@@ -21,7 +52,16 @@ export default function InviteToken() {
           later if you want.
         </ThemedText>
       </View>
-      <Button label="Join tally" onPress={() => {}} />
+      {error ? (
+        <ThemedText preset="body" color="debit" style={{ textAlign: "center", marginBottom: 12 }}>
+          {error}
+        </ThemedText>
+      ) : null}
+      <Button
+        label={joining ? "Joining…" : "Join tally"}
+        onPress={handleJoin}
+        disabled={joining || sessionLoading}
+      />
     </Screen>
   );
 }
