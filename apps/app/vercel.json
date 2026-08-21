@@ -5,9 +5,12 @@
   "cleanUrls": true,
   "framework": null,
   "rewrites": [
-    {
-      "source": "/:path*",
-      "destination": "/"
-    }
+    { "source": "/invite/:token", "destination": "/invite/[token]" },
+    { "source": "/tally/:id/entry/:entryId", "destination": "/tally/[id]/entry/[entryId]" },
+    { "source": "/tally/:id/add-entry", "destination": "/tally/[id]/add-entry" },
+    { "source": "/tally/:id/settle-up", "destination": "/tally/[id]/settle-up" },
+    { "source": "/tally/:id/settle-confirm", "destination": "/tally/[id]/settle-confirm" },
+    { "source": "/tally/:id", "destination": "/tally/[id]" },
+    { "source": "/:path*", "destination": "/" }
   ]
 }
