@@ -11,6 +11,7 @@ import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import { IntroOverlay } from "@/components/IntroOverlay";
 import { SessionProvider } from "@/lib/SessionProvider";
 import { ThemeProvider, useTheme } from "@/theme/ThemeProvider";
 
@@ -28,6 +29,7 @@ function RootStack() {
       >
         <Stack.Screen name="invite/[token]" options={{ presentation: "modal" }} />
       </Stack>
+      <IntroOverlay />
     </>
   );
 }
