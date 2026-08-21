@@ -92,7 +92,7 @@ export default function SettingsIndex() {
         color="secondary"
         style={{ textAlign: "center", marginBottom: 75 }}
       >
-        Tally, part of Folio
+        Talli, part of Folio
       </ThemedText>
     </Screen>
   );

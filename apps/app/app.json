@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Tally",
+    "name": "Talli",
     "slug": "tally",
     "scheme": "tally",
     "version": "1.0.0",
@@ -14,7 +14,7 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Tally uses your photo library to set a profile picture."
+          "photosPermission": "Talli uses your photo library to set a profile picture."
         }
       ]
     ],

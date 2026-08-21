@@ -8,6 +8,7 @@ import {
 } from "@expo-google-fonts/manrope";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
+import Head from "expo-router/head";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -20,6 +21,9 @@ function RootStack() {
 
   return (
     <>
+      <Head>
+        <title>Talli</title>
+      </Head>
       <StatusBar style={mode === "dark" ? "light" : "dark"} />
       <Stack
         screenOptions={{

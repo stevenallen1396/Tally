@@ -9,7 +9,7 @@ export default function Welcome() {
   return (
     <Screen>
       <View style={{ flex: 1, justifyContent: "center", gap: 12 }}>
-        <ThemedText preset="displayHero">Tally</ThemedText>
+        <ThemedText preset="displayHero">Talli</ThemedText>
         <ThemedText preset="body" color="secondary">
           Keep a running tally of who owes who — no payments, just the record.
         </ThemedText>

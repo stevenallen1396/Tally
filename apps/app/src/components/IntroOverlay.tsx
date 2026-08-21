@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { Animated, Easing, Image, StyleSheet, useWindowDimensions, View } from "react-native";
+import { Animated, Easing, Image, PanResponder, StyleSheet, useWindowDimensions, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { hasSeenIntro, markIntroSeen } from "@/lib/introStorage";
@@ -10,8 +10,11 @@ import { ThemedText } from "./ThemedText";
 const WORDMARK_ASPECT_RATIO = 1146 / 667;
 const CHARCOAL = "#1E1C19";
 const CANVAS_CREAM = "#F4EEDF";
-const HOLD_MS = 1300;
-const EXIT_MS = 1800;
+const EXIT_MS = 1000;
+// A swipe past this distance (or a fast enough flick, regardless of distance)
+// counts as "dismiss"; anything smaller snaps back to the resting position.
+const DISMISS_DISTANCE = 60;
+const DISMISS_VELOCITY = 0.35;
 
 export function IntroOverlay() {
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
@@ -27,7 +30,7 @@ export function IntroOverlay() {
       if (cancelled || seen) return;
       setShouldRender(true);
 
-      const bounceLoop = Animated.loop(
+      Animated.loop(
         Animated.sequence([
           Animated.timing(bounce, {
             toValue: -8,
@@ -42,30 +45,48 @@ export function IntroOverlay() {
             useNativeDriver: true,
           }),
         ]),
-      );
-      bounceLoop.start();
-
-      const timer = setTimeout(() => {
-        bounceLoop.stop();
-        Animated.timing(translateY, {
-          toValue: -screenHeight * 1.2,
-          duration: EXIT_MS,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }).start(() => {
-          markIntroSeen();
-          setShouldRender(false);
-        });
-      }, HOLD_MS);
-
-      return () => clearTimeout(timer);
+      ).start();
     });
 
     return () => {
       cancelled = true;
+      bounce.stopAnimation();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once on mount by design; screenHeight/translateY are stable enough for a one-shot intro.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once on mount by design; bounce is a stable Animated.Value.
   }, []);
+
+  const dismiss = () => {
+    bounce.stopAnimation();
+    Animated.timing(translateY, {
+      toValue: -screenHeight * 1.2,
+      duration: EXIT_MS,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start(() => {
+      markIntroSeen();
+      setShouldRender(false);
+    });
+  };
+
+  const [panResponder] = useState(() =>
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderMove: (_evt, gesture) => {
+        translateY.setValue(Math.min(0, gesture.dy));
+      },
+      onPanResponderRelease: (_evt, gesture) => {
+        const movedEnough = Math.abs(gesture.dx) + Math.abs(gesture.dy);
+        const isTap = movedEnough < 10;
+        const isSwipeUp = gesture.dy < -DISMISS_DISTANCE || gesture.vy < -DISMISS_VELOCITY;
+        if (isTap || isSwipeUp) {
+          dismiss();
+        } else {
+          Animated.spring(translateY, { toValue: 0, useNativeDriver: true }).start();
+        }
+      },
+    }),
+  );
 
   if (!shouldRender) return null;
 
@@ -73,24 +94,27 @@ export function IntroOverlay() {
 
   return (
     <Animated.View
-      pointerEvents="auto"
+      {...panResponder.panHandlers}
       style={[styles.overlay, { backgroundColor: CHARCOAL, transform: [{ translateY }] }]}
     >
       <View style={{ flex: 1 }} />
       <View style={{ alignItems: "center", gap: 12, paddingHorizontal: 40 }}>
         <Image
           source={require("../../assets/wordmark.png")}
-          accessibilityLabel="Tally"
+          accessibilityLabel="Talli"
           style={{ width: wordmarkWidth, height: wordmarkWidth / WORDMARK_ASPECT_RATIO }}
           resizeMode="contain"
         />
-        <ThemedText preset="body" style={{ color: CANVAS_CREAM, textAlign: "center" }}>
+        <ThemedText
+          preset="body"
+          style={{ color: CANVAS_CREAM, textAlign: "center", fontSize: 19, lineHeight: 28, marginTop: 8 }}
+        >
           For all of life&apos;s IOUs
         </ThemedText>
       </View>
       <View style={{ flex: 2, alignItems: "center", justifyContent: "flex-end", paddingBottom: insets.bottom + 24 }}>
-        <Animated.View style={{ transform: [{ translateY: bounce }] }}>
-          <Ionicons name="chevron-up" size={28} color={CANVAS_CREAM} />
+        <Animated.View style={{ transform: [{ translateY: bounce }, { scaleY: 0.6 }] }}>
+          <Ionicons name="chevron-up" size={56} color={CANVAS_CREAM} />
         </Animated.View>
       </View>
     </Animated.View>
