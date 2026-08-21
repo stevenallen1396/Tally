@@ -18,12 +18,12 @@ export default function Notifications() {
   return (
     <Screen style={{ padding: 0 }}>
       <View style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16 }}>
-        <ThemedText preset="headingScreen">Notifications</ThemedText>
+        <ThemedText preset="headingScreen">Activity</ThemedText>
       </View>
       <FlatList
         data={notifications}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 120 }}
         ListEmptyComponent={
           loading ? null : (
             <View style={{ paddingTop: 60, alignItems: "center" }}>

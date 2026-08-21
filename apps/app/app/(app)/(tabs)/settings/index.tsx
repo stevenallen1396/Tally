@@ -27,7 +27,11 @@ export default function SettingsIndex() {
       />
       <SettingsRow label="Sign out" onPress={() => supabase.auth.signOut()} />
       <View style={{ flex: 1 }} />
-      <ThemedText preset="ledgerMeta" color="secondary" style={{ textAlign: "center" }}>
+      <ThemedText
+        preset="ledgerMeta"
+        color="secondary"
+        style={{ textAlign: "center", marginBottom: 90 }}
+      >
         Tally, part of Folio
       </ThemedText>
     </Screen>
