@@ -1,3 +1,4 @@
+import * as Linking from "expo-linking";
 import { Link, router, Stack } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
@@ -18,7 +19,11 @@ export default function SignUp() {
   const handleSignUp = async () => {
     setError(null);
     setSubmitting(true);
-    const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: Linking.createURL("/") },
+    });
     setSubmitting(false);
 
     if (signUpError) {

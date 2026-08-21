@@ -1,3 +1,4 @@
+import * as Linking from "expo-linking";
 import { useState } from "react";
 import { View } from "react-native";
 
@@ -23,7 +24,10 @@ export default function UpgradeAccount() {
   const handleSave = async () => {
     setError(null);
     setSubmitting(true);
-    const { error: updateError } = await supabase.auth.updateUser({ email, password });
+    const { error: updateError } = await supabase.auth.updateUser(
+      { email, password },
+      { emailRedirectTo: Linking.createURL("/") },
+    );
     setSubmitting(false);
 
     if (updateError) {
