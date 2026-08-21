@@ -12,3 +12,6 @@ apps/app/ios/
 apps/app/android/
 supabase/.branches/
 supabase/.temp/
+.playwright-mcp/
+/*.png
+/*.jpeg

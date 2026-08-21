@@ -340,6 +340,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_invite: {
+        Args: { p_invitee_label?: string; p_tally_id: string }
+        Returns: {
+          accepted_by: string | null
+          created_at: string
+          created_by: string
+          expires_at: string
+          id: string
+          invitee_label: string | null
+          status: string
+          tally_id: string
+          token: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "invites"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_tally_with_owner: {
         Args: { p_currency?: string }
         Returns: {

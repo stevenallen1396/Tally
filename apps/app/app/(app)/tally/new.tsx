@@ -27,15 +27,10 @@ export default function NewTally() {
       return;
     }
 
-    const { data: invite, error: inviteError } = await supabase
-      .from("invites")
-      .insert({
-        tally_id: tally.id,
-        created_by: tally.created_by,
-        invitee_label: partnerLabel.trim() || null,
-      })
-      .select("token")
-      .single();
+    const { data: invite, error: inviteError } = await supabase.rpc("create_invite", {
+      p_tally_id: tally.id,
+      p_invitee_label: partnerLabel.trim() || undefined,
+    });
     setSubmitting(false);
 
     if (inviteError || !invite) {
