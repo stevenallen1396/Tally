@@ -36,7 +36,9 @@ export function TallyCard({ data, onPress }: { data: TallyCardData; onPress?: ()
       ]}
     >
       <View style={{ flex: 1, gap: 4 }}>
-        <ThemedText preset="bodyEmphasis">{data.partnerName}</ThemedText>
+        <ThemedText preset="bodyEmphasis" style={{ fontSize: 19, lineHeight: 24 }}>
+          {data.partnerName}
+        </ThemedText>
         <ThemedText preset="ledgerMeta" color="secondary">
           {statusLabel}
         </ThemedText>
