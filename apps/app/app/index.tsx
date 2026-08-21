@@ -19,5 +19,5 @@ export default function Index() {
     return <Redirect href="/(auth)/create-profile" />;
   }
 
-  return <Redirect href="/(app)/(tabs)/dashboard" />;
+  return <Redirect href="/(app)/tally/new" />;
 }
