@@ -1,11 +1,19 @@
 import { Redirect, Stack } from "expo-router";
+import { useEffect } from "react";
 
 import { useSession } from "@/lib/SessionProvider";
+import { registerForPushNotifications } from "@/lib/pushNotifications";
 
 // RLS already scopes all data server-side — this guard only exists to route
 // signed-out users to the right entry screen, not for security.
 export default function AppLayout() {
   const { session, loading } = useSession();
+
+  useEffect(() => {
+    if (session) {
+      registerForPushNotifications(session.user.id);
+    }
+  }, [session]);
 
   if (loading) {
     return null;

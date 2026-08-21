@@ -1,14 +1,34 @@
-import { useState } from "react";
-import { Switch, View } from "react-native";
+import * as Notifications from "expo-notifications";
+import { useEffect, useState } from "react";
+import { Platform, Switch, View } from "react-native";
 
 import { Screen } from "@/components/Screen";
 import { ThemedText } from "@/components/ThemedText";
+import { useSession } from "@/lib/SessionProvider";
+import { registerForPushNotifications, unregisterForPushNotifications } from "@/lib/pushNotifications";
 import { useTheme } from "@/theme/ThemeProvider";
 
-// TODO(phase 5): persist to a per-user notification preference + register/unregister the Expo push token.
+const unsupported = Platform.OS === "web";
+
 export default function NotificationSettings() {
   const { colors } = useTheme();
-  const [pushEnabled, setPushEnabled] = useState(true);
+  const { session } = useSession();
+  const [pushEnabled, setPushEnabled] = useState(false);
+
+  useEffect(() => {
+    if (unsupported) return;
+    Notifications.getPermissionsAsync().then(({ status }) => setPushEnabled(status === "granted"));
+  }, []);
+
+  const handleToggle = async (value: boolean) => {
+    if (!session) return;
+    setPushEnabled(value);
+    if (value) {
+      await registerForPushNotifications(session.user.id);
+    } else {
+      await unregisterForPushNotifications();
+    }
+  };
 
   return (
     <Screen>
@@ -27,12 +47,15 @@ export default function NotificationSettings() {
         <View style={{ flex: 1, gap: 2 }}>
           <ThemedText preset="bodyEmphasis">Push notifications</ThemedText>
           <ThemedText preset="ledgerMeta" color="secondary">
-            New entries and settlement requests from your tally partners.
+            {unsupported
+              ? "Not available on web — use the app on your phone."
+              : "New entries and settlement requests from your tally partners."}
           </ThemedText>
         </View>
         <Switch
           value={pushEnabled}
-          onValueChange={setPushEnabled}
+          onValueChange={handleToggle}
+          disabled={unsupported}
           trackColor={{ true: colors.accentPrimary, false: colors.border }}
         />
       </View>
