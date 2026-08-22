@@ -285,6 +285,8 @@ export type Database = {
       tallies: {
         Row: {
           archived_at: string | null
+          archived_by: string | null
+          archived_by_name: string | null
           created_at: string
           created_by: string
           currency: string
@@ -292,6 +294,8 @@ export type Database = {
         }
         Insert: {
           archived_at?: string | null
+          archived_by?: string | null
+          archived_by_name?: string | null
           created_at?: string
           created_by: string
           currency?: string
@@ -299,6 +303,8 @@ export type Database = {
         }
         Update: {
           archived_at?: string | null
+          archived_by?: string | null
+          archived_by_name?: string | null
           created_at?: string
           created_by?: string
           currency?: string
@@ -364,6 +370,8 @@ export type Database = {
         Args: { p_currency?: string }
         Returns: {
           archived_at: string | null
+          archived_by: string | null
+          archived_by_name: string | null
           created_at: string
           created_by: string
           currency: string
@@ -381,6 +389,10 @@ export type Database = {
         Returns: string
       }
       is_tally_member: { Args: { check_tally_id: string }; Returns: boolean }
+      leave_tally: {
+        Args: { p_tally_id: string }
+        Returns: undefined
+      }
       notify_other_tally_member: {
         Args: {
           p_actor: string

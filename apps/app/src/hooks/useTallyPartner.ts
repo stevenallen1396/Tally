@@ -9,6 +9,7 @@ export function useTallyPartner(tallyId: string) {
   const [partnerId, setPartnerId] = useState<string | null>(null);
   const [partnerName, setPartnerName] = useState("your buddy");
   const [awaitingPartner, setAwaitingPartner] = useState(false);
+  const [closed, setClosed] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,6 +18,21 @@ export function useTallyPartner(tallyId: string) {
 
     const fetchPartner = async () => {
       setLoading(true);
+      const { data: tally } = await supabase
+        .from("tallies")
+        .select("archived_at, archived_by_name")
+        .eq("id", tallyId)
+        .maybeSingle();
+
+      if (tally?.archived_at) {
+        if (cancelled) return;
+        setClosed(true);
+        setPartnerName(tally.archived_by_name ?? "your buddy");
+        setAwaitingPartner(false);
+        setLoading(false);
+        return;
+      }
+
       const { data: otherMember } = await supabase
         .from("tally_members")
         .select("user_id")
@@ -55,5 +71,5 @@ export function useTallyPartner(tallyId: string) {
     };
   }, [tallyId, userId]);
 
-  return { partnerId, partnerName, awaitingPartner, loading };
+  return { partnerId, partnerName, awaitingPartner, closed, loading };
 }

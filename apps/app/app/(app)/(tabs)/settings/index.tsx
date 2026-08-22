@@ -88,11 +88,13 @@ export default function SettingsIndex() {
         onPress={() => router.push("/(app)/(tabs)/settings/notifications")}
       />
       <AppearanceToggle />
-      <Pressable onPress={() => supabase.auth.signOut()} style={{ alignSelf: "center", paddingVertical: 4 }}>
-        <ThemedText preset="body" color="secondary" style={{ textDecorationLine: "underline" }}>
-          Sign out
-        </ThemedText>
-      </Pressable>
+      {isGuest ? null : (
+        <Pressable onPress={() => supabase.auth.signOut()} style={{ alignSelf: "center", paddingVertical: 4 }}>
+          <ThemedText preset="body" color="secondary" style={{ textDecorationLine: "underline" }}>
+            Sign out
+          </ThemedText>
+        </Pressable>
+      )}
       <View style={{ flex: 1 }} />
       <ThemedText
         preset="ledgerMeta"

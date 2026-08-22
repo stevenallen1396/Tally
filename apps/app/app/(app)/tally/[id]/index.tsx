@@ -1,6 +1,6 @@
 import { formatAbsGBP } from "@tally/shared";
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { FlatList, View } from "react-native";
+import { FlatList, Pressable, View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { EntryRow } from "@/components/EntryRow";
@@ -14,17 +14,19 @@ export default function TallyDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { colors } = useTheme();
-  const { partnerName, awaitingPartner, entries, balanceMinor, loading } = useTallyDetail(id);
+  const { partnerName, awaitingPartner, closed, entries, balanceMinor, loading } = useTallyDetail(id);
 
   const isEven = balanceMinor === 0;
   const isCredit = balanceMinor >= 0;
-  const statusLabel = awaitingPartner
-    ? "waiting to join"
-    : isEven
-      ? "evens stevens"
-      : isCredit
-        ? "owes you"
-        : "you owe them";
+  const statusLabel = closed
+    ? `${partnerName} left this tally`
+    : awaitingPartner
+      ? "waiting to join"
+      : isEven
+        ? "evens stevens"
+        : isCredit
+          ? "owes you"
+          : "you owe them";
 
   return (
     <Screen style={{ padding: 0 }}>
@@ -39,9 +41,9 @@ export default function TallyDetail() {
         </ThemedText>
         <ThemedText
           preset="ledgerBalance"
-          color={awaitingPartner || isEven ? "secondary" : isCredit ? "credit" : "debit"}
+          color={closed || awaitingPartner || isEven ? "secondary" : isCredit ? "credit" : "debit"}
         >
-          {awaitingPartner || isEven ? "" : isCredit ? "+" : "-"}
+          {closed || awaitingPartner || isEven ? "" : isCredit ? "+" : "-"}
           {formatAbsGBP(balanceMinor)}
         </ThemedText>
         <ThemedText preset="ledgerMeta" color="secondary">
@@ -69,12 +71,24 @@ export default function TallyDetail() {
       />
 
       <View style={{ position: "absolute", left: 20, right: 20, bottom: 20, gap: 10 }}>
-        <Link href={`/(app)/tally/${id}/add-entry`} asChild>
-          <Button label="Add entry" />
-        </Link>
-        <Link href={`/(app)/tally/${id}/settle-up`} asChild>
-          <Button label="Settle up" variant="secondary" />
-        </Link>
+        {closed ? null : (
+          <>
+            <Link href={`/(app)/tally/${id}/add-entry`} asChild>
+              <Button label="Add entry" />
+            </Link>
+            <Link href={`/(app)/tally/${id}/settle-up`} asChild>
+              <Button label="Settle up" variant="secondary" />
+            </Link>
+          </>
+        )}
+        <Pressable
+          onPress={() => router.push(`/(app)/tally/${id}/leave`)}
+          style={{ paddingVertical: 4, alignItems: "center" }}
+        >
+          <ThemedText preset="body" color="secondary" style={{ textDecorationLine: "underline" }}>
+            {closed ? "Remove tally" : "Leave tally"}
+          </ThemedText>
+        </Pressable>
       </View>
     </Screen>
   );

@@ -66,7 +66,7 @@ export default function Notifications() {
               />
               <View style={{ flex: 1, gap: 2 }}>
                 <ThemedText preset="bodyEmphasis" style={{ fontSize: 17, lineHeight: 22 }}>
-                  {item.partnerName ?? "your tally partner"}
+                  {item.partnerName ?? "your buddy"}
                 </ThemedText>
                 <ThemedText preset="body" color="secondary">
                   {item.description ?? item.body}

@@ -14,6 +14,15 @@ async function fetchTallies(userId: string): Promise<TallyCardData[]> {
   const tallyIds = (myMemberships ?? []).map((m) => m.tally_id);
   if (tallyIds.length === 0) return [];
 
+  const { data: talliesData, error: talliesError } = await supabase
+    .from("tallies")
+    .select("id, archived_at, archived_by_name")
+    .in("id", tallyIds);
+  if (talliesError) throw talliesError;
+
+  const closedByTally = new Map((talliesData ?? []).map((t) => [t.id, t.archived_at !== null]));
+  const closedNameByTally = new Map((talliesData ?? []).map((t) => [t.id, t.archived_by_name]));
+
   const { data: otherMembers, error: otherMembersError } = await supabase
     .from("tally_members")
     .select("tally_id, user_id")
@@ -47,8 +56,11 @@ async function fetchTallies(userId: string): Promise<TallyCardData[]> {
 
   // Tallies with no other member yet still get a real name — the one the
   // owner gave them at invite time — rather than a placeholder standing in
-  // for it. "Waiting to join" becomes a separate status flag.
-  const unjoinedTallyIds = tallyIds.filter((tallyId) => !otherUserIdByTally.has(tallyId));
+  // for it. "Waiting to join" becomes a separate status flag. Closed tallies
+  // (the other member left) never had a pending invite to look up.
+  const unjoinedTallyIds = tallyIds.filter(
+    (tallyId) => !otherUserIdByTally.has(tallyId) && !closedByTally.get(tallyId),
+  );
   const pendingLabels = await Promise.all(
     unjoinedTallyIds.map((tallyId) =>
       supabase.rpc("get_pending_invite_label", { p_tally_id: tallyId }).then(({ data }) => data),
@@ -57,16 +69,20 @@ async function fetchTallies(userId: string): Promise<TallyCardData[]> {
   const pendingLabelByTally = new Map(unjoinedTallyIds.map((id, i) => [id, pendingLabels[i]]));
 
   return tallyIds.map((tallyId) => {
+    const closed = closedByTally.get(tallyId) ?? false;
     const otherUserId = otherUserIdByTally.get(tallyId);
-    const awaitingPartner = !otherUserId;
-    const partnerName = otherUserId
-      ? (displayNameByUserId.get(otherUserId) ?? "your buddy")
-      : (pendingLabelByTally.get(tallyId) ?? "your buddy");
+    const awaitingPartner = !closed && !otherUserId;
+    const partnerName = closed
+      ? (closedNameByTally.get(tallyId) ?? "your buddy")
+      : otherUserId
+        ? (displayNameByUserId.get(otherUserId) ?? "your buddy")
+        : (pendingLabelByTally.get(tallyId) ?? "your buddy");
     return {
       id: tallyId,
       partnerName,
       partnerAvatarUrl: (otherUserId ? avatarUrlByUserId.get(otherUserId) : null) ?? null,
       awaitingPartner,
+      closed,
       balanceMinor: balanceByTally.get(tallyId) ?? 0,
     };
   });

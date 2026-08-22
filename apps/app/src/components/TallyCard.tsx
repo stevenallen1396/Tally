@@ -11,6 +11,7 @@ export type TallyCardData = {
   partnerName: string;
   partnerAvatarUrl: string | null;
   awaitingPartner: boolean;
+  closed: boolean;
   balanceMinor: number; // positive = they owe you (credit), negative = you owe them (debit)
 };
 
@@ -18,23 +19,29 @@ export function TallyCard({ data, onPress }: { data: TallyCardData; onPress?: ()
   const { colors } = useTheme();
   const isEven = data.balanceMinor === 0;
   const isCredit = data.balanceMinor >= 0;
-  const balanceColor = isEven ? colors.textSecondary : isCredit ? colors.credit : colors.debit;
-  const balanceBg = isEven ? colors.background : isCredit ? colors.creditBg : colors.debitBg;
+  const balanceColor = data.closed || isEven ? colors.textSecondary : isCredit ? colors.credit : colors.debit;
+  const balanceBg = data.closed || isEven ? colors.background : isCredit ? colors.creditBg : colors.debitBg;
 
-  const statusLabel = data.awaitingPartner
-    ? "waiting to join"
-    : isEven
-      ? "evens stevens"
-      : isCredit
-        ? "owes you"
-        : "you owe";
+  const statusLabel = data.closed
+    ? "buddy left · tap to remove"
+    : data.awaitingPartner
+      ? "waiting to join"
+      : isEven
+        ? "evens stevens"
+        : isCredit
+          ? "owes you"
+          : "you owe";
 
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
         styles.card,
-        { backgroundColor: colors.surface, borderColor: colors.border, opacity: pressed ? 0.85 : 1 },
+        {
+          backgroundColor: colors.surface,
+          borderColor: colors.border,
+          opacity: data.closed ? 0.55 : pressed ? 0.85 : 1,
+        },
       ]}
     >
       {data.partnerAvatarUrl ? <Avatar uri={data.partnerAvatarUrl} size={40} /> : null}
