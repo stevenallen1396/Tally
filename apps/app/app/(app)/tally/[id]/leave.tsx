@@ -15,6 +15,7 @@ export default function LeaveTally() {
   const { partnerName, awaitingPartner, closed } = useTallyPartner(id);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
 
   const heading = closed ? "Remove this tally?" : awaitingPartner ? "Delete this tally?" : "Leave this tally?";
   const body = closed
@@ -34,8 +35,24 @@ export default function LeaveTally() {
       setError(rpcError.message);
       return;
     }
-    router.replace("/(app)/(tabs)/dashboard");
+    setDone(true);
   };
+
+  if (done) {
+    return (
+      <Screen>
+        <View style={{ flex: 1, justifyContent: "center", gap: 12, alignItems: "center" }}>
+          <ThemedText preset="headingScreen">{closed || awaitingPartner ? "Tally removed" : "You've left"}</ThemedText>
+          <ThemedText preset="body" color="secondary" style={{ textAlign: "center" }}>
+            {closed || awaitingPartner
+              ? "It's gone for good."
+              : `${partnerName} has been notified.`}
+          </ThemedText>
+        </View>
+        <Button label="Back to dashboard" onPress={() => router.replace("/(app)/(tabs)/dashboard")} />
+      </Screen>
+    );
+  }
 
   return (
     <Screen>
