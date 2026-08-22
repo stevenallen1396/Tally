@@ -10,7 +10,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="profile" options={{ title: "Profile" }} />
       <Stack.Screen name="notifications" options={{ title: "Notification settings" }} />
-      <Stack.Screen name="upgrade-account" options={{ title: "Save your account" }} />
+      <Stack.Screen name="upgrade-account" options={{ headerShown: false }} />
     </Stack>
   );
 }

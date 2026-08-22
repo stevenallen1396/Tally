@@ -4,31 +4,16 @@ import { Pressable, View } from "react-native";
 
 import { Avatar } from "@/components/Avatar";
 import { Button } from "@/components/Button";
+import { PlaceholderAvatar } from "@/components/PlaceholderAvatar";
 import { Screen } from "@/components/Screen";
 import { TextField } from "@/components/TextField";
 import { ThemedText } from "@/components/ThemedText";
 import { useProfile } from "@/hooks/useProfile";
+import { uploadAvatar } from "@/lib/avatarUpload";
 import { useSession } from "@/lib/SessionProvider";
 import { supabase } from "@/lib/supabase";
-import { useTheme } from "@/theme/ThemeProvider";
-
-// Picked image URIs are `blob:`/`content:`/`ph:` on web/native and never carry
-// a real file extension, so the storage path extension has to come from the
-// asset's MIME type instead of parsing the URI.
-const MIME_TO_EXT: Record<string, string> = {
-  "image/jpeg": "jpg",
-  "image/png": "png",
-  "image/webp": "webp",
-  "image/heic": "heic",
-  "image/heif": "heif",
-};
-
-function extensionFromMimeType(mimeType: string | null | undefined) {
-  return MIME_TO_EXT[mimeType ?? ""] ?? "jpg";
-}
 
 export default function Profile() {
-  const { colors } = useTheme();
   const { session } = useSession();
   const { profile, refetch } = useProfile();
   const [displayName, setDisplayName] = useState("");
@@ -74,20 +59,7 @@ export default function Profile() {
     setError(null);
     setUploadingAvatar(true);
     try {
-      const arraybuffer = await fetch(image.uri).then((res) => res.arrayBuffer());
-      const fileExt = extensionFromMimeType(image.mimeType);
-      const path = `${session.user.id}/avatar.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(path, arraybuffer, { contentType: image.mimeType ?? "image/jpeg", upsert: true });
-      if (uploadError) throw uploadError;
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("avatars").getPublicUrl(path);
-      const avatarUrl = `${publicUrl}?t=${Date.now()}`;
-
+      const avatarUrl = await uploadAvatar(session.user.id, image.uri, image.mimeType);
       const { error: updateError } = await supabase
         .from("profiles")
         .update({ avatar_url: avatarUrl })
@@ -106,20 +78,7 @@ export default function Profile() {
     <Screen>
       <View style={{ gap: 16 }}>
         <Pressable onPress={handlePickAvatar} disabled={uploadingAvatar} style={{ alignItems: "center", gap: 8 }}>
-          {profile?.avatar_url ? (
-            <Avatar uri={profile.avatar_url} size={72} />
-          ) : (
-            <View
-              style={{
-                width: 72,
-                height: 72,
-                borderRadius: 36,
-                backgroundColor: colors.surface,
-                borderWidth: 1,
-                borderColor: colors.border,
-              }}
-            />
-          )}
+          {profile?.avatar_url ? <Avatar uri={profile.avatar_url} size={72} /> : <PlaceholderAvatar size={72} />}
           <ThemedText preset="body" color="secondary" style={{ textDecorationLine: "underline" }}>
             {uploadingAvatar ? "Uploading…" : "Change photo"}
           </ThemedText>
