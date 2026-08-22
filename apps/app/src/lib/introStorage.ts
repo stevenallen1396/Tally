@@ -15,3 +15,11 @@ export async function markIntroSeen(): Promise<void> {
     await SecureStore.setItemAsync(KEY, "true");
   }
 }
+
+export async function clearIntroSeen(): Promise<void> {
+  if (Platform.OS === "web") {
+    localStorage.removeItem(KEY);
+  } else {
+    await SecureStore.deleteItemAsync(KEY);
+  }
+}
