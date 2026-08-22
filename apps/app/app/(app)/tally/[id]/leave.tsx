@@ -3,6 +3,7 @@ import { useState } from "react";
 import { View } from "react-native";
 
 import { Button } from "@/components/Button";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Screen } from "@/components/Screen";
 import { SmartBackButton } from "@/components/SmartBackButton";
 import { ThemedText } from "@/components/ThemedText";
@@ -16,6 +17,7 @@ export default function LeaveTally() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [confirmVisible, setConfirmVisible] = useState(false);
 
   const heading = closed ? "Remove this tally?" : awaitingPartner ? "Delete this tally?" : "Leave this tally?";
   const body = closed
@@ -26,6 +28,7 @@ export default function LeaveTally() {
   const buttonLabel = closed ? "Remove tally" : awaitingPartner ? "Delete tally" : "Leave tally";
 
   const handleConfirm = async () => {
+    setConfirmVisible(false);
     setError(null);
     setSubmitting(true);
     const { error: rpcError } = await supabase.rpc("leave_tally", { p_tally_id: id });
@@ -70,9 +73,17 @@ export default function LeaveTally() {
       ) : null}
       <Button
         label={submitting ? "Removing…" : buttonLabel}
-        onPress={handleConfirm}
+        onPress={() => setConfirmVisible(true)}
         disabled={submitting}
         variant="secondary"
+      />
+      <ConfirmDialog
+        visible={confirmVisible}
+        title={heading}
+        message={body}
+        confirmLabel={buttonLabel}
+        onConfirm={handleConfirm}
+        onCancel={() => setConfirmVisible(false)}
       />
     </Screen>
   );
