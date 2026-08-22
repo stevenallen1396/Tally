@@ -7,12 +7,14 @@ import type { TallyCardData } from "@/components/TallyCard";
 async function fetchTallies(userId: string): Promise<TallyCardData[]> {
   const { data: myMemberships, error: membershipError } = await supabase
     .from("tally_members")
-    .select("tally_id")
+    .select("tally_id, buddy_nickname")
     .eq("user_id", userId);
   if (membershipError) throw membershipError;
 
   const tallyIds = (myMemberships ?? []).map((m) => m.tally_id);
   if (tallyIds.length === 0) return [];
+
+  const nicknameByTally = new Map((myMemberships ?? []).map((m) => [m.tally_id, m.buddy_nickname]));
 
   const { data: talliesData, error: talliesError } = await supabase
     .from("tallies")
@@ -72,11 +74,12 @@ async function fetchTallies(userId: string): Promise<TallyCardData[]> {
     const closed = closedByTally.get(tallyId) ?? false;
     const otherUserId = otherUserIdByTally.get(tallyId);
     const awaitingPartner = !closed && !otherUserId;
-    const partnerName = closed
+    const baseName = closed
       ? (closedNameByTally.get(tallyId) ?? "your buddy")
       : otherUserId
         ? (displayNameByUserId.get(otherUserId) ?? "your buddy")
         : (pendingLabelByTally.get(tallyId) ?? "your buddy");
+    const partnerName = nicknameByTally.get(tallyId) ?? baseName;
     return {
       id: tallyId,
       partnerName,

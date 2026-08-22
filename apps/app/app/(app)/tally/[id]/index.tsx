@@ -1,6 +1,7 @@
 import { formatAbsGBP } from "@tally/shared";
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { FlatList, Pressable, View } from "react-native";
+import { useState } from "react";
+import { FlatList, Pressable, TextInput, View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { EntryRow } from "@/components/EntryRow";
@@ -8,13 +9,31 @@ import { Screen } from "@/components/Screen";
 import { SmartBackButton } from "@/components/SmartBackButton";
 import { ThemedText } from "@/components/ThemedText";
 import { useTallyDetail } from "@/hooks/useTallyDetail";
+import { supabase } from "@/lib/supabase";
 import { useTheme } from "@/theme/ThemeProvider";
 
 export default function TallyDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { colors } = useTheme();
-  const { partnerName, awaitingPartner, closed, entries, balanceMinor, loading } = useTallyDetail(id);
+  const { colors, typography } = useTheme();
+  const { partnerName, awaitingPartner, closed, entries, balanceMinor, loading, refetchPartner } =
+    useTallyDetail(id);
+  const [editingName, setEditingName] = useState(false);
+  const [nameDraft, setNameDraft] = useState("");
+  const [savingName, setSavingName] = useState(false);
+
+  const startEditingName = () => {
+    setNameDraft(partnerName);
+    setEditingName(true);
+  };
+
+  const saveName = async () => {
+    setEditingName(false);
+    setSavingName(true);
+    await supabase.rpc("set_buddy_nickname", { p_tally_id: id, p_nickname: nameDraft });
+    await refetchPartner();
+    setSavingName(false);
+  };
 
   const isEven = balanceMinor === 0;
   const isCredit = balanceMinor >= 0;
@@ -36,9 +55,26 @@ export default function TallyDetail() {
         }}
       />
       <View style={{ padding: 20, alignItems: "center", gap: 6 }}>
-        <ThemedText preset="label" color="secondary">
-          {partnerName || (loading ? "…" : "")}
-        </ThemedText>
+        {editingName ? (
+          <TextInput
+            value={nameDraft}
+            onChangeText={setNameDraft}
+            onBlur={saveName}
+            onSubmitEditing={saveName}
+            autoFocus
+            selectTextOnFocus
+            style={[
+              typography.label.default,
+              { color: colors.textSecondary, textAlign: "center", minWidth: 120, padding: 0 },
+            ]}
+          />
+        ) : (
+          <Pressable onLongPress={startEditingName}>
+            <ThemedText preset="label" color="secondary">
+              {savingName ? "Saving…" : partnerName || (loading ? "…" : "")}
+            </ThemedText>
+          </Pressable>
+        )}
         <ThemedText
           preset="ledgerBalance"
           color={closed || awaitingPartner || isEven ? "secondary" : isCredit ? "credit" : "debit"}

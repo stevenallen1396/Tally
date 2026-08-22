@@ -38,6 +38,7 @@ export function useTallyDetail(tallyId: string) {
     awaitingPartner,
     closed,
     loading: partnerLoading,
+    refetch: refetchPartner,
   } = useTallyPartner(tallyId);
   const [entries, setEntries] = useState<EntryRowData[]>([]);
   const [balanceMinor, setBalanceMinor] = useState(0);
@@ -81,5 +82,6 @@ export function useTallyDetail(tallyId: string) {
     balanceMinor,
     loading: partnerLoading || entriesLoading,
     refetch,
+    refetchPartner,
   };
 }

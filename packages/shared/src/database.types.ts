@@ -314,18 +314,21 @@ export type Database = {
       }
       tally_members: {
         Row: {
+          buddy_nickname: string | null
           joined_at: string
           role: string
           tally_id: string
           user_id: string
         }
         Insert: {
+          buddy_nickname?: string | null
           joined_at?: string
           role: string
           tally_id: string
           user_id: string
         }
         Update: {
+          buddy_nickname?: string | null
           joined_at?: string
           role?: string
           tally_id?: string
@@ -424,6 +427,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      set_buddy_nickname: {
+        Args: { p_nickname: string; p_tally_id: string }
+        Returns: undefined
       }
       tally_balance_minor: {
         Args: { p_from: string; p_tally_id: string }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useSession } from "@/lib/SessionProvider";
 import { supabase } from "@/lib/supabase";
@@ -12,64 +12,70 @@ export function useTallyPartner(tallyId: string) {
   const [closed, setClosed] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const refetch = useCallback(async () => {
     if (!userId) return;
-    let cancelled = false;
+    setLoading(true);
 
-    const fetchPartner = async () => {
-      setLoading(true);
-      const { data: tally } = await supabase
-        .from("tallies")
-        .select("archived_at, archived_by_name")
-        .eq("id", tallyId)
-        .maybeSingle();
+    // A locally-set nickname (how *this* viewer refers to the other party)
+    // always wins over whatever name would otherwise be shown.
+    const { data: myMembership } = await supabase
+      .from("tally_members")
+      .select("buddy_nickname")
+      .eq("tally_id", tallyId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    const nickname = myMembership?.buddy_nickname ?? null;
 
-      if (tally?.archived_at) {
-        if (cancelled) return;
-        setClosed(true);
-        setPartnerName(tally.archived_by_name ?? "your buddy");
-        setAwaitingPartner(false);
-        setLoading(false);
-        return;
-      }
+    const { data: tally } = await supabase
+      .from("tallies")
+      .select("archived_at, archived_by_name")
+      .eq("id", tallyId)
+      .maybeSingle();
 
-      const { data: otherMember } = await supabase
-        .from("tally_members")
-        .select("user_id")
-        .eq("tally_id", tallyId)
-        .neq("user_id", userId)
-        .maybeSingle();
-
-      if (!otherMember) {
-        // No one's joined yet — show the name the owner gave them at
-        // invite time instead of a placeholder standing in for the name.
-        const { data: label } = await supabase.rpc("get_pending_invite_label", {
-          p_tally_id: tallyId,
-        });
-        if (cancelled) return;
-        if (label) setPartnerName(label);
-        setAwaitingPartner(true);
-        setLoading(false);
-        return;
-      }
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("display_name")
-        .eq("id", otherMember.user_id)
-        .maybeSingle();
-      if (cancelled) return;
-      setPartnerId(otherMember.user_id);
+    if (tally?.archived_at) {
+      setClosed(true);
+      setPartnerName(nickname ?? tally.archived_by_name ?? "your buddy");
       setAwaitingPartner(false);
-      if (profile) setPartnerName(profile.display_name);
       setLoading(false);
-    };
+      return;
+    }
+    setClosed(false);
 
-    fetchPartner();
+    const { data: otherMember } = await supabase
+      .from("tally_members")
+      .select("user_id")
+      .eq("tally_id", tallyId)
+      .neq("user_id", userId)
+      .maybeSingle();
 
-    return () => {
-      cancelled = true;
-    };
+    if (!otherMember) {
+      // No one's joined yet — show the name the owner gave them at
+      // invite time instead of a placeholder standing in for the name.
+      const { data: label } = await supabase.rpc("get_pending_invite_label", {
+        p_tally_id: tallyId,
+      });
+      setPartnerId(null);
+      setPartnerName(nickname ?? label ?? "your buddy");
+      setAwaitingPartner(true);
+      setLoading(false);
+      return;
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("id", otherMember.user_id)
+      .maybeSingle();
+    setPartnerId(otherMember.user_id);
+    setAwaitingPartner(false);
+    setPartnerName(nickname ?? profile?.display_name ?? "your buddy");
+    setLoading(false);
   }, [tallyId, userId]);
 
-  return { partnerId, partnerName, awaitingPartner, closed, loading };
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- kicking off the fetch on mount/dep-change is the point.
+    refetch();
+  }, [refetch]);
+
+  return { partnerId, partnerName, awaitingPartner, closed, loading, refetch };
 }
