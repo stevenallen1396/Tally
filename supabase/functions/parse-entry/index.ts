@@ -1,17 +1,23 @@
 import Anthropic from "npm:@anthropic-ai/sdk@^0.70";
-import { zodOutputFormat } from "npm:@anthropic-ai/sdk@^0.70/helpers/zod";
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { z } from "npm:zod@^3.25";
 
 import { corsHeaders, handleCors } from "../_shared/cors.ts";
 
-const ParsedEntrySchema = z.object({
-  amount_minor: z.number().int().positive(),
-  direction: z.enum(["i_owe", "they_owe"]),
-  note: z.string(),
-  name_mismatch: z.boolean(),
-  confidence: z.enum(["high", "medium", "low"]),
-});
+// Plain JSON schema instead of zodOutputFormat() — the `@anthropic-ai/sdk/
+// helpers/zod` subpath fails to resolve under the edge runtime's npm
+// compat layer ("path not found" boot crash), so this avoids it entirely.
+const PARSED_ENTRY_SCHEMA = {
+  type: "object",
+  properties: {
+    amount_minor: { type: "integer" },
+    direction: { type: "string", enum: ["i_owe", "they_owe"] },
+    note: { type: "string" },
+    name_mismatch: { type: "boolean" },
+    confidence: { type: "string", enum: ["high", "medium", "low"] },
+  },
+  required: ["amount_minor", "direction", "note", "name_mismatch", "confidence"],
+  additionalProperties: false,
+};
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -71,29 +77,39 @@ Deno.serve(async (req) => {
     .select("display_name")
     .eq("id", otherMember.user_id)
     .maybeSingle();
-  const partnerName = partnerProfile?.display_name ?? "your tally partner";
+  const partnerName = partnerProfile?.display_name ?? "your buddy";
 
   const anthropic = new Anthropic({ apiKey: Deno.env.get("ANTHROPIC_API_KEY") });
   const model = Deno.env.get("ANTHROPIC_MODEL") ?? "claude-haiku-4-5";
 
-  const response = await anthropic.messages.parse({
+  const response = await anthropic.messages.create({
     model,
     max_tokens: 1024,
     system:
-      `You turn a short sentence about a shared expense into a structured record for a two-person IOU ledger app called Tally. ` +
-      `The user's tally partner is named "${partnerName}". The currency is always GBP. ` +
+      `You turn a short sentence about a shared expense into a structured record for a two-person IOU ledger app called Talli. ` +
+      `The user's buddy is named "${partnerName}". The currency is always GBP. ` +
       `"amount_minor" is the amount in pence (e.g. £5 -> 500). ` +
-      `"direction" is "they_owe" if the partner now owes the user money, or "i_owe" if the user now owes the partner money. ` +
+      `"direction" is "they_owe" if the buddy now owes the user money, or "i_owe" if the user now owes the buddy money. ` +
       `"note" is a short (under 6 words) description of what the money was for. ` +
       `"name_mismatch" is true only if the sentence names a specific person who is clearly NOT "${partnerName}" (a plain pronoun or no name at all is not a mismatch). ` +
       `"confidence" reflects how sure you are about the amount and direction specifically.`,
     messages: [{ role: "user", content: raw_text }],
-    output_config: { format: zodOutputFormat(ParsedEntrySchema) },
+    output_config: { format: { type: "json_schema", schema: PARSED_ENTRY_SCHEMA } },
   });
 
-  if (!response.parsed_output) {
+  const textBlock = response.content.find((block) => block.type === "text");
+  let parsedOutput: unknown = null;
+  if (textBlock && "text" in textBlock) {
+    try {
+      parsedOutput = JSON.parse(textBlock.text);
+    } catch {
+      parsedOutput = null;
+    }
+  }
+
+  if (!parsedOutput) {
     return json({ error: "Could not understand that — try rephrasing or use Manual." }, 422);
   }
 
-  return json(response.parsed_output);
+  return json(parsedOutput);
 });
