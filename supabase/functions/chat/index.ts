@@ -1,7 +1,20 @@
 import { GoogleGenAI } from "npm:@google/genai@^1";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-import { corsHeaders, handleCors } from "../_shared/cors.ts";
+// Inlined (not imported from ../_shared/cors.ts) so this file stays
+// deployable as-is via the Supabase Dashboard's single-file editor, which
+// doesn't support relative imports to sibling files.
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+function handleCors(req: Request): Response | null {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+  return null;
+}
 
 type ChatMessage = { role: "user" | "assistant"; text: string };
 
