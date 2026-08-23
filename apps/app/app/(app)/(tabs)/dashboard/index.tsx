@@ -7,12 +7,13 @@ import { Screen } from "@/components/Screen";
 import { TallyCard } from "@/components/TallyCard";
 import { ThemedText } from "@/components/ThemedText";
 import { useTallies } from "@/hooks/useTallies";
+import { supabase } from "@/lib/supabase";
 import { useTheme } from "@/theme/ThemeProvider";
 
 export default function Dashboard() {
   const router = useRouter();
   const { colors } = useTheme();
-  const { tallies, loading } = useTallies();
+  const { tallies, loading, refetch } = useTallies();
 
   return (
     <Screen style={{ padding: 0 }}>
@@ -33,7 +34,16 @@ export default function Dashboard() {
           )
         }
         renderItem={({ item }) => (
-          <TallyCard data={item} onPress={() => router.push(`/(app)/tally/${item.id}`)} />
+          <TallyCard
+            data={item}
+            onPress={() => {
+              if (item.closed) {
+                supabase.rpc("leave_tally", { p_tally_id: item.id }).then(refetch);
+              } else {
+                router.push(`/(app)/tally/${item.id}`);
+              }
+            }}
+          />
         )}
       />
       <View style={{ position: "absolute", left: 20, right: 20, bottom: 84, gap: 12 }}>

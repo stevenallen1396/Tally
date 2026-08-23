@@ -68,7 +68,7 @@ export default function NewTally() {
         {needsYourName ? (
           <>
             <ThemedText preset="body" color="secondary">
-              What should your buddy call you?
+              What is your name?
             </ThemedText>
             <TextField label="Your name" value={yourName} onChangeText={setYourName} />
           </>
