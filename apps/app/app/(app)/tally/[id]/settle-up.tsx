@@ -36,7 +36,7 @@ export default function SettleUp() {
         <ThemedText preset="headingScreen">Settle up?</ThemedText>
         <ThemedText preset="body" color="secondary" style={{ textAlign: "center" }}>
           This marks the balance as settled once the other person confirms. It won&apos;t move any
-          money — just resets the tally to zero.
+          money — just resets the talli to zero.
         </ThemedText>
       </View>
       {error ? (

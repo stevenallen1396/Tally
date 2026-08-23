@@ -42,7 +42,7 @@ export default function InviteToken() {
     setJoining(false);
 
     if (acceptError || !data) {
-      setError(await functionErrorMessage(acceptError, "Couldn't join this tally"));
+      setError(await functionErrorMessage(acceptError, "Couldn't join this talli"));
       return;
     }
 
@@ -52,7 +52,7 @@ export default function InviteToken() {
   return (
     <Screen>
       <View style={{ flex: 1, justifyContent: "center", gap: 12, alignItems: "center" }}>
-        <ThemedText preset="headingScreen">You&apos;ve been invited to a tally</ThemedText>
+        <ThemedText preset="headingScreen">You&apos;ve been invited to a talli</ThemedText>
         <ThemedText preset="body" color="secondary" style={{ textAlign: "center" }}>
           No account needed — you can view and add entries right away, and save your account
           later if you want.
@@ -69,7 +69,7 @@ export default function InviteToken() {
         </ThemedText>
       ) : null}
       <Button
-        label={joining ? "Joining…" : "Join tally"}
+        label={joining ? "Joining…" : "Join talli"}
         onPress={handleJoin}
         disabled={joining || sessionLoading || (needsYourName && !yourName.trim())}
       />

@@ -30,7 +30,7 @@ export default function JoinTally() {
     setSubmitting(false);
 
     if (acceptError || !data) {
-      setError(await functionErrorMessage(acceptError, "Couldn't join that tally"));
+      setError(await functionErrorMessage(acceptError, "Couldn't join that talli"));
       return;
     }
 
@@ -65,7 +65,7 @@ export default function JoinTally() {
           </ThemedText>
         ) : null}
         <Button
-          label={submitting ? "Joining…" : "Join tally"}
+          label={submitting ? "Joining…" : "Join talli"}
           onPress={handleJoin}
           disabled={submitting || !code.trim() || (needsYourName && !yourName.trim())}
         />

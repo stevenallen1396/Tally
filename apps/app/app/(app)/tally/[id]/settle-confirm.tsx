@@ -79,7 +79,7 @@ export default function SettleConfirm() {
         <Stack.Screen options={{ headerLeft: () => backButton }} />
         <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
           <ThemedText preset="body" color="secondary">
-            No settlement is pending on this tally.
+            No settlement is pending on this talli.
           </ThemedText>
         </View>
       </Screen>

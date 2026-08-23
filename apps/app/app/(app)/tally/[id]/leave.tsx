@@ -17,13 +17,13 @@ export default function LeaveTally() {
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
 
-  const heading = closed ? "Remove this tally?" : awaitingPartner ? "Delete this tally?" : "Leave this tally?";
+  const heading = closed ? "Remove this talli?" : awaitingPartner ? "Delete this talli?" : "Leave this talli?";
   const body = closed
-    ? `${partnerName} already left — this will permanently delete the tally and its history.`
+    ? `${partnerName} already left — this will permanently delete the talli and its history.`
     : awaitingPartner
       ? "Nobody has joined yet. Deleting it now removes it completely — this can't be undone."
       : `${partnerName} will be notified, and can remove it from their side once you're gone. This can't be undone.`;
-  const buttonLabel = closed ? "Remove tally" : awaitingPartner ? "Delete tally" : "Leave tally";
+  const buttonLabel = closed ? "Remove talli" : awaitingPartner ? "Delete talli" : "Leave talli";
 
   const handleConfirm = async () => {
     setError(null);
@@ -42,7 +42,7 @@ export default function LeaveTally() {
     return (
       <Screen>
         <View style={{ flex: 1, justifyContent: "center", gap: 12, alignItems: "center" }}>
-          <ThemedText preset="headingScreen">{closed || awaitingPartner ? "Tally removed" : "You've left"}</ThemedText>
+          <ThemedText preset="headingScreen">{closed || awaitingPartner ? "Talli removed" : "You've left"}</ThemedText>
           <ThemedText preset="body" color="secondary" style={{ textAlign: "center" }}>
             {closed || awaitingPartner
               ? "It's gone for good."

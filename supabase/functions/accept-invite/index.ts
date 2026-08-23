@@ -112,15 +112,15 @@ export default {
             user_id: otherMember.user_id,
             tally_id: invite.tally_id,
             type: "member_joined",
-            title: `${joinerName ?? "Your buddy"} joined your tally`,
-            body: "You can start tallying together.",
+            title: `${joinerName ?? "Your buddy"} joined your talli`,
+            body: "You're all set to start tracking together.",
           },
           {
             user_id: userId,
             tally_id: invite.tally_id,
             type: "member_joined",
-            title: `You joined ${otherName}'s tally`,
-            body: "You can start tallying together.",
+            title: `You joined ${otherName}'s talli`,
+            body: "You're all set to start tracking together.",
           },
         ]);
       }

@@ -148,7 +148,7 @@ export default function Chat() {
             <View style={{ flex: 1, justifyContent: "center", alignItems: "center", gap: 8 }}>
               <Ionicons name="sparkles" size={28} color={colors.textSecondary} />
               <ThemedText preset="body" color="secondary" style={{ textAlign: "center" }}>
-                Ask about a tally&apos;s balance or history, or tell me about an expense to log — e.g.
+                Ask about a talli&apos;s balance or history, or tell me about an expense to log — e.g.
                 &ldquo;How much does Sam owe me?&rdquo; or &ldquo;Sam owes me £8 for coffee&rdquo;.
               </ThemedText>
             </View>

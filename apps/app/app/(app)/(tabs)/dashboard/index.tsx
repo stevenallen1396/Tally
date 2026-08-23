@@ -18,7 +18,7 @@ export default function Dashboard() {
   return (
     <Screen style={{ padding: 0 }}>
       <View style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16, gap: 4 }}>
-        <ThemedText preset="headingScreen">Your tallies</ThemedText>
+        <ThemedText preset="headingScreen">Your tallis</ThemedText>
       </View>
       <FlatList
         data={tallies}
@@ -28,7 +28,7 @@ export default function Dashboard() {
           loading ? null : (
             <View style={{ paddingTop: 60, alignItems: "center", gap: 8 }}>
               <ThemedText preset="body" color="secondary" style={{ textAlign: "center" }}>
-                No tallies yet. Start one with a friend to keep track of what you owe each other.
+                No tallis yet. Start one with a friend to keep track of what you owe each other.
               </ThemedText>
             </View>
           )
@@ -72,7 +72,7 @@ export default function Dashboard() {
           </ThemedText>
         </View>
         <Link href="/(app)/tally/new" asChild>
-          <Button label="Start a tally" />
+          <Button label="Start or join a talli" />
         </Link>
       </View>
     </Screen>

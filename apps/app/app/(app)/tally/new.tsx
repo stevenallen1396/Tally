@@ -34,7 +34,7 @@ export default function NewTally() {
     const { data: tally, error: tallyError } = await supabase.rpc("create_tally_with_owner");
     if (tallyError || !tally) {
       setSubmitting(false);
-      setError(tallyError?.message ?? "Couldn't create the tally");
+      setError(tallyError?.message ?? "Couldn't create the talli");
       return;
     }
 
@@ -74,7 +74,7 @@ export default function NewTally() {
           </>
         ) : null}
         <ThemedText preset="body" color="secondary">
-          Who&apos;s this tally with? This is just a label for you until they join.
+          Who&apos;s this talli with? This is just a label for you until they join.
         </ThemedText>
         <TextField label="Buddy's name" value={partnerLabel} onChangeText={setPartnerLabel} />
         {error ? (
@@ -85,7 +85,7 @@ export default function NewTally() {
         {inviteLink ? null : (
           <>
             <Button
-              label={submitting ? "Creating…" : "Create tally & get invite link"}
+              label={submitting ? "Creating…" : "Create talli & get invite link"}
               onPress={handleCreate}
               disabled={submitting || !partnerLabel.trim() || (needsYourName && !yourName.trim())}
             />
@@ -94,7 +94,7 @@ export default function NewTally() {
               style={{ paddingVertical: 4, alignItems: "center" }}
             >
               <ThemedText preset="body" color="secondary" style={{ textDecorationLine: "underline" }}>
-                Have a code instead? Join a tally
+                Have a code instead? Join a talli
               </ThemedText>
             </Pressable>
           </>

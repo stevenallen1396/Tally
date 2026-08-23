@@ -16,7 +16,7 @@ export default function TallyDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { colors, typography } = useTheme();
-  const { partnerName, awaitingPartner, closed, entries, balanceMinor, loading, refetchPartner } =
+  const { partnerName, awaitingPartner, closed, entries, balanceMinor, hasPendingSettlement, loading, refetchPartner } =
     useTallyDetail(id);
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState("");
@@ -38,7 +38,7 @@ export default function TallyDetail() {
   const isEven = balanceMinor === 0;
   const isCredit = balanceMinor >= 0;
   const statusLabel = closed
-    ? `${partnerName} left this tally`
+    ? `${partnerName} left this talli`
     : awaitingPartner
       ? "waiting to join"
       : isEven
@@ -112,9 +112,15 @@ export default function TallyDetail() {
             <Link href={`/(app)/tally/${id}/add-entry`} asChild>
               <Button label="Add entry" />
             </Link>
-            <Link href={`/(app)/tally/${id}/settle-up`} asChild>
-              <Button label="Settle up" variant="secondary" />
-            </Link>
+            {hasPendingSettlement ? (
+              <Link href={`/(app)/tally/${id}/settle-confirm`} asChild>
+                <Button label="Settlement pending — review" variant="secondary" />
+              </Link>
+            ) : (
+              <Link href={`/(app)/tally/${id}/settle-up`} asChild>
+                <Button label="Settle up" variant="secondary" />
+              </Link>
+            )}
           </>
         )}
         <Pressable
@@ -122,7 +128,7 @@ export default function TallyDetail() {
           style={{ paddingVertical: 4, alignItems: "center" }}
         >
           <ThemedText preset="body" color="secondary" style={{ textDecorationLine: "underline" }}>
-            {closed ? "Remove tally" : "Leave tally"}
+            {closed ? "Remove talli" : "Leave talli"}
           </ThemedText>
         </Pressable>
       </View>

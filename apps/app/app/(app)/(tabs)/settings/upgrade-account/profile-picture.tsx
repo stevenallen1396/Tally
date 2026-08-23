@@ -49,7 +49,7 @@ export default function UpgradeAccountProfilePicture() {
       if (updateError) {
         if (updateError.code === "email_exists" || /already registered/i.test(updateError.message)) {
           setError(
-            "That email already has an account. Sign in to it separately for now — merging this guest tally into it isn't supported yet.",
+            "That email already has an account. Sign in to it separately for now — merging this guest talli into it isn't supported yet.",
           );
           return;
         }

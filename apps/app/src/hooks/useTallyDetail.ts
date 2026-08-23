@@ -27,7 +27,15 @@ async function fetchEntries(tallyId: string, userId: string) {
   }));
 
   const balanceMinor = rows.reduce((sum, row) => sum + row.amountMinor, 0);
-  return { entries: rows, balanceMinor };
+
+  const { data: pendingSettlement } = await supabase
+    .from("settlements")
+    .select("id")
+    .eq("tally_id", tallyId)
+    .eq("status", "pending")
+    .maybeSingle();
+
+  return { entries: rows, balanceMinor, hasPendingSettlement: !!pendingSettlement };
 }
 
 export function useTallyDetail(tallyId: string) {
@@ -42,6 +50,7 @@ export function useTallyDetail(tallyId: string) {
   } = useTallyPartner(tallyId);
   const [entries, setEntries] = useState<EntryRowData[]>([]);
   const [balanceMinor, setBalanceMinor] = useState(0);
+  const [hasPendingSettlement, setHasPendingSettlement] = useState(false);
   const [entriesLoading, setEntriesLoading] = useState(true);
   // Unique per mount — a name shared across instances (e.g. revisiting the
   // same tally while a previous instance is still mounted in the
@@ -52,9 +61,10 @@ export function useTallyDetail(tallyId: string) {
     if (!userId) return;
     setEntriesLoading(true);
     fetchEntries(tallyId, userId)
-      .then(({ entries, balanceMinor }) => {
+      .then(({ entries, balanceMinor, hasPendingSettlement }) => {
         setEntries(entries);
         setBalanceMinor(balanceMinor);
+        setHasPendingSettlement(hasPendingSettlement);
       })
       .finally(() => setEntriesLoading(false));
   }, [tallyId, userId]);
@@ -71,6 +81,11 @@ export function useTallyDetail(tallyId: string) {
         { event: "*", schema: "public", table: "entries", filter: `tally_id=eq.${tallyId}` },
         refetch,
       )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "settlements", filter: `tally_id=eq.${tallyId}` },
+        refetch,
+      )
       .subscribe();
 
     return () => {
@@ -84,6 +99,7 @@ export function useTallyDetail(tallyId: string) {
     closed,
     entries,
     balanceMinor,
+    hasPendingSettlement,
     loading: partnerLoading || entriesLoading,
     refetch,
     refetchPartner,

@@ -30,7 +30,7 @@ export default function UpgradeAccountEmail() {
     <Screen>
       <View style={{ gap: 16, marginTop: 12 }}>
         <ThemedText preset="body" color="secondary">
-          Add an email and password to keep this tally accessible from any device.
+          Add an email and password to keep this talli accessible from any device.
         </ThemedText>
         <TextField
           label="Email"
