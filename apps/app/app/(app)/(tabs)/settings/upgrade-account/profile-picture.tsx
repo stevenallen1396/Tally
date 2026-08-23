@@ -1,5 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import * as Linking from "expo-linking";
+import { router } from "expo-router";
 import { useState } from "react";
 import { Pressable, View } from "react-native";
 
@@ -7,6 +8,7 @@ import { Avatar } from "@/components/Avatar";
 import { Button } from "@/components/Button";
 import { PlaceholderAvatar } from "@/components/PlaceholderAvatar";
 import { Screen } from "@/components/Screen";
+import { TextField } from "@/components/TextField";
 import { ThemedText } from "@/components/ThemedText";
 import { uploadAvatar } from "@/lib/avatarUpload";
 import { useSession } from "@/lib/SessionProvider";
@@ -25,6 +27,8 @@ export default function UpgradeAccountProfilePicture() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [emailTaken, setEmailTaken] = useState(false);
+  const [existingPassword, setExistingPassword] = useState("");
 
   const handlePickPhoto = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -48,9 +52,7 @@ export default function UpgradeAccountProfilePicture() {
       );
       if (updateError) {
         if (updateError.code === "email_exists" || /already registered/i.test(updateError.message)) {
-          setError(
-            "That email already has an account. Sign in to it separately for now — merging this guest talli into it isn't supported yet.",
-          );
+          setEmailTaken(true);
           return;
         }
         throw updateError;
@@ -75,6 +77,66 @@ export default function UpgradeAccountProfilePicture() {
       setSubmitting(false);
     }
   };
+
+  const handleSignInAndMerge = async () => {
+    if (!session) return;
+    setError(null);
+    setSubmitting(true);
+
+    // Capture the guest session's token before signInWithPassword replaces
+    // it, so any tallies started as this guest can be pulled across.
+    const guestAccessToken = session.access_token;
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password: existingPassword,
+    });
+    if (signInError) {
+      setSubmitting(false);
+      setError(signInError.message);
+      return;
+    }
+
+    const { error: mergeError } = await supabase.functions.invoke("merge-guest-account", {
+      body: { guest_access_token: guestAccessToken },
+    });
+    setSubmitting(false);
+    if (mergeError) {
+      setError("Signed in, but couldn't bring your guest talli across — try again from Settings.");
+      return;
+    }
+
+    reset();
+    router.replace("/(app)/(tabs)/dashboard");
+  };
+
+  if (emailTaken) {
+    return (
+      <Screen>
+        <View style={{ gap: 16, marginTop: 12 }}>
+          <ThemedText preset="body" color="secondary">
+            {email} already has an account. Sign in to it and any tallies you started as a guest will
+            move across.
+          </ThemedText>
+          <TextField
+            label="Password"
+            value={existingPassword}
+            onChangeText={setExistingPassword}
+            secureTextEntry
+          />
+          {error ? (
+            <ThemedText preset="body" color="debit">
+              {error}
+            </ThemedText>
+          ) : null}
+          <Button
+            label={submitting ? "Signing in…" : "Sign in & bring talli across"}
+            onPress={handleSignInAndMerge}
+            disabled={submitting || !existingPassword}
+          />
+        </View>
+      </Screen>
+    );
+  }
 
   if (done) {
     return (

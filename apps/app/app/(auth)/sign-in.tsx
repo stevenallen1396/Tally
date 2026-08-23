@@ -6,9 +6,11 @@ import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
 import { TextField } from "@/components/TextField";
 import { ThemedText } from "@/components/ThemedText";
+import { useSession } from "@/lib/SessionProvider";
 import { supabase } from "@/lib/supabase";
 
 export default function SignIn() {
+  const { session } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -17,13 +19,26 @@ export default function SignIn() {
   const handleSignIn = async () => {
     setError(null);
     setSubmitting(true);
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-    setSubmitting(false);
 
+    // Signing in swaps to a brand new session — capture the outgoing guest
+    // session's token first so any tallies started before signing in can be
+    // pulled across afterward, instead of being silently orphaned.
+    const guestAccessToken = session?.user.is_anonymous ? session.access_token : null;
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
     if (signInError) {
+      setSubmitting(false);
       setError(signInError.message);
       return;
     }
+
+    if (guestAccessToken) {
+      await supabase.functions.invoke("merge-guest-account", {
+        body: { guest_access_token: guestAccessToken },
+      });
+    }
+
+    setSubmitting(false);
     router.replace("/");
   };
 
