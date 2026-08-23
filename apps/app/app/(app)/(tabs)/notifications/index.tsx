@@ -14,7 +14,7 @@ function formatWhen(iso: string) {
 export default function Notifications() {
   const { colors } = useTheme();
   const router = useRouter();
-  const { notifications, loading, markRead } = useNotifications();
+  const { notifications, loading } = useNotifications();
 
   return (
     <Screen style={{ padding: 0 }}>
@@ -43,7 +43,6 @@ export default function Notifications() {
           return (
             <Pressable
               onPress={() => {
-                if (!item.readAt) markRead(item.id);
                 if (item.tallyId) router.push(`/(app)/tally/${item.tallyId}`);
               }}
               style={{
@@ -55,15 +54,6 @@ export default function Notifications() {
                 borderBottomColor: colors.border,
               }}
             >
-              <View
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: 4,
-                  marginTop: 6,
-                  backgroundColor: item.readAt ? "transparent" : colors.accentPrimary,
-                }}
-              />
               <View style={{ flex: 1, gap: 2 }}>
                 <ThemedText preset="bodyEmphasis" style={{ fontSize: 17, lineHeight: 22 }}>
                   {item.partnerName ?? "your buddy"}

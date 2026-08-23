@@ -8,7 +8,6 @@ export type NotificationItem = {
   tallyId: string | null;
   title: string;
   body: string;
-  readAt: string | null;
   createdAt: string;
   partnerName: string | null;
   description: string | null;
@@ -20,7 +19,6 @@ type NotificationRow = {
   tally_id: string | null;
   title: string;
   body: string;
-  read_at: string | null;
   created_at: string;
   data: { entry_id?: string; settlement_id?: string } | null;
 };
@@ -28,7 +26,7 @@ type NotificationRow = {
 async function fetchNotifications(userId: string): Promise<NotificationItem[]> {
   const { data, error } = await supabase
     .from("notifications")
-    .select("id, tally_id, title, body, read_at, created_at, data")
+    .select("id, tally_id, title, body, created_at, data")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(50);
@@ -90,7 +88,6 @@ async function fetchNotifications(userId: string): Promise<NotificationItem[]> {
       tallyId: row.tally_id,
       title: row.title,
       body: row.body,
-      readAt: row.read_at,
       createdAt: row.created_at,
       partnerName,
       description,
@@ -136,12 +133,5 @@ export function useNotifications() {
     };
   }, [userId, refetch, channelName]);
 
-  const markRead = useCallback(async (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, readAt: n.readAt ?? new Date().toISOString() } : n)),
-    );
-    await supabase.from("notifications").update({ read_at: new Date().toISOString() }).eq("id", id);
-  }, []);
-
-  return { notifications, loading, markRead };
+  return { notifications, loading };
 }
