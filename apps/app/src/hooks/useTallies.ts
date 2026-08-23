@@ -124,6 +124,7 @@ export function useTallies() {
       .channel(channelName)
       .on("postgres_changes", { event: "*", schema: "public", table: "entries" }, refetch)
       .on("postgres_changes", { event: "*", schema: "public", table: "tally_members" }, refetch)
+      .on("postgres_changes", { event: "*", schema: "public", table: "tallies" }, refetch)
       .subscribe();
 
     return () => {
