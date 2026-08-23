@@ -7,6 +7,7 @@ import { Screen } from "@/components/Screen";
 import { TextField } from "@/components/TextField";
 import { ThemedText } from "@/components/ThemedText";
 import { useProfile } from "@/hooks/useProfile";
+import { functionErrorMessage } from "@/lib/functionError";
 import { useSession } from "@/lib/SessionProvider";
 import { supabase } from "@/lib/supabase";
 
@@ -41,7 +42,7 @@ export default function InviteToken() {
     setJoining(false);
 
     if (acceptError || !data) {
-      setError(acceptError?.message ?? "Couldn't join this tally");
+      setError(await functionErrorMessage(acceptError, "Couldn't join this tally"));
       return;
     }
 

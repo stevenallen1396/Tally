@@ -7,6 +7,7 @@ import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
 import { SmartBackButton } from "@/components/SmartBackButton";
 import { ThemedText } from "@/components/ThemedText";
+import { functionErrorMessage } from "@/lib/functionError";
 import { useSession } from "@/lib/SessionProvider";
 import { supabase } from "@/lib/supabase";
 import { useTheme } from "@/theme/ThemeProvider";
@@ -66,7 +67,7 @@ export default function Chat() {
     setSending(false);
 
     if (fnError || !data) {
-      setError(fnError?.message ?? "Something went wrong — try again.");
+      setError(await functionErrorMessage(fnError, "Something went wrong — try again."));
       return;
     }
 

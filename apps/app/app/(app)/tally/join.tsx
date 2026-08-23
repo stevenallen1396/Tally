@@ -8,6 +8,7 @@ import { SmartBackButton } from "@/components/SmartBackButton";
 import { TextField } from "@/components/TextField";
 import { ThemedText } from "@/components/ThemedText";
 import { useProfile } from "@/hooks/useProfile";
+import { functionErrorMessage } from "@/lib/functionError";
 import { supabase } from "@/lib/supabase";
 
 export default function JoinTally() {
@@ -29,7 +30,7 @@ export default function JoinTally() {
     setSubmitting(false);
 
     if (acceptError || !data) {
-      setError(acceptError?.message ?? "Couldn't join that tally");
+      setError(await functionErrorMessage(acceptError, "Couldn't join that tally"));
       return;
     }
 

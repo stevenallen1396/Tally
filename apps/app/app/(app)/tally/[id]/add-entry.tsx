@@ -8,6 +8,7 @@ import { SmartBackButton } from "@/components/SmartBackButton";
 import { TextField } from "@/components/TextField";
 import { ThemedText } from "@/components/ThemedText";
 import { useTallyPartner } from "@/hooks/useTallyPartner";
+import { functionErrorMessage } from "@/lib/functionError";
 import { useSession } from "@/lib/SessionProvider";
 import { goBackOrReplace } from "@/lib/navigation";
 import { supabase } from "@/lib/supabase";
@@ -81,7 +82,7 @@ export default function AddEntry() {
     setParsing(false);
 
     if (parseError || !data) {
-      setError(parseError?.message ?? "Couldn't understand that — try Manual instead.");
+      setError(await functionErrorMessage(parseError, "Couldn't understand that — try Manual instead."));
       return;
     }
     setParsed(data);
