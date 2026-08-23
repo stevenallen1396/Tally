@@ -34,7 +34,9 @@ export default function AppLayout() {
   return (
     <Stack screenOptions={{ headerShown: false, ...headerOptions }}>
       <Stack.Screen name="tally/new" options={{ headerShown: true, title: "Start a tally" }} />
+      <Stack.Screen name="tally/join" options={{ headerShown: true, title: "Join a tally" }} />
       <Stack.Screen name="tally/[id]/index" options={{ headerShown: true, title: "" }} />
+      <Stack.Screen name="tally/[id]/leave" options={{ headerShown: true, title: "" }} />
       <Stack.Screen
         name="tally/[id]/add-entry"
         options={{ headerShown: true, title: "Add entry", presentation: "modal" }}

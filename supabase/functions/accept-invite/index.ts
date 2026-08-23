@@ -9,23 +9,23 @@ export default {
     const admin = ctx.supabaseAdmin;
 
     let token: string | undefined;
+    let code: string | undefined;
     try {
-      ({ token } = await req.json());
+      ({ token, code } = await req.json());
     } catch {
       // fall through to the missing-token check below
     }
-    if (!token) {
-      return Response.json({ error: "Missing invite token" }, { status: 400 });
+    if (!token && !code) {
+      return Response.json({ error: "Missing invite token or code" }, { status: 400 });
     }
 
-    const { data: invite, error: inviteError } = await admin
-      .from("invites")
-      .select("id, tally_id, status, expires_at, accepted_by, invitee_label")
-      .eq("token", token)
-      .maybeSingle();
+    const query = admin.from("invites").select("id, tally_id, status, expires_at, accepted_by, invitee_label");
+    const { data: invite, error: inviteError } = token
+      ? await query.eq("token", token).maybeSingle()
+      : await query.eq("invite_code", code!.trim().toLowerCase().replace(/\s+/g, "-")).maybeSingle();
 
     if (inviteError || !invite) {
-      return Response.json({ error: "Invalid invite link" }, { status: 404 });
+      return Response.json({ error: code ? "Invalid invite code" : "Invalid invite link" }, { status: 404 });
     }
     if (new Date(invite.expires_at) < new Date()) {
       return Response.json({ error: "This invite link has expired" }, { status: 400 });

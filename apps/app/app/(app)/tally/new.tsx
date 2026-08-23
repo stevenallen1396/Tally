@@ -1,7 +1,7 @@
 import * as Linking from "expo-linking";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { useState } from "react";
-import { Share, View } from "react-native";
+import { Pressable, Share, View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
@@ -13,8 +13,10 @@ import { useTheme } from "@/theme/ThemeProvider";
 
 export default function NewTally() {
   const { colors } = useTheme();
+  const router = useRouter();
   const [partnerLabel, setPartnerLabel] = useState("");
   const [inviteLink, setInviteLink] = useState<string | null>(null);
+  const [inviteCode, setInviteCode] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,6 +43,7 @@ export default function NewTally() {
     }
 
     setInviteLink(Linking.createURL(`/invite/${invite.token}`));
+    setInviteCode(invite.invite_code);
   };
 
   return (
@@ -61,11 +64,21 @@ export default function NewTally() {
           </ThemedText>
         ) : null}
         {inviteLink ? null : (
-          <Button
-            label={submitting ? "Creating…" : "Create tally & get invite link"}
-            onPress={handleCreate}
-            disabled={submitting || !partnerLabel.trim()}
-          />
+          <>
+            <Button
+              label={submitting ? "Creating…" : "Create tally & get invite link"}
+              onPress={handleCreate}
+              disabled={submitting || !partnerLabel.trim()}
+            />
+            <Pressable
+              onPress={() => router.push("/(app)/tally/join")}
+              style={{ paddingVertical: 4, alignItems: "center" }}
+            >
+              <ThemedText preset="body" color="secondary" style={{ textDecorationLine: "underline" }}>
+                Have a code instead? Join a tally
+              </ThemedText>
+            </Pressable>
+          </>
         )}
       </View>
 
@@ -86,6 +99,16 @@ export default function NewTally() {
             {inviteLink}
           </ThemedText>
           <Button label="Share link" onPress={() => Share.share({ message: inviteLink })} />
+          {inviteCode ? (
+            <View style={{ gap: 6, marginTop: 4 }}>
+              <ThemedText preset="ledgerMeta" color="secondary">
+                Or they can type in this code instead:
+              </ThemedText>
+              <ThemedText preset="headingSection" style={{ letterSpacing: 1 }}>
+                {inviteCode.toUpperCase()}
+              </ThemedText>
+            </View>
+          ) : null}
         </View>
       ) : null}
     </Screen>

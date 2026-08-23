@@ -109,6 +109,7 @@ export type Database = {
           created_by: string
           expires_at: string
           id: string
+          invite_code: string | null
           invitee_label: string | null
           status: string
           tally_id: string
@@ -120,6 +121,7 @@ export type Database = {
           created_by: string
           expires_at?: string
           id?: string
+          invite_code?: string | null
           invitee_label?: string | null
           status?: string
           tally_id: string
@@ -131,6 +133,7 @@ export type Database = {
           created_by?: string
           expires_at?: string
           id?: string
+          invite_code?: string | null
           invitee_label?: string | null
           status?: string
           tally_id?: string
@@ -357,6 +360,7 @@ export type Database = {
           created_by: string
           expires_at: string
           id: string
+          invite_code: string | null
           invitee_label: string | null
           status: string
           tally_id: string
