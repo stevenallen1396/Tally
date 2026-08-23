@@ -92,13 +92,29 @@ export default {
         .maybeSingle();
 
       if (otherMember) {
-        await admin.from("notifications").insert({
-          user_id: otherMember.user_id,
-          tally_id: invite.tally_id,
-          type: "member_joined",
-          title: `${joinerName ?? "Your buddy"} joined your tally`,
-          body: "You can start tallying together.",
-        });
+        const { data: otherProfile } = await admin
+          .from("profiles")
+          .select("display_name")
+          .eq("id", otherMember.user_id)
+          .maybeSingle();
+        const otherName = otherProfile?.display_name ?? "your buddy";
+
+        await admin.from("notifications").insert([
+          {
+            user_id: otherMember.user_id,
+            tally_id: invite.tally_id,
+            type: "member_joined",
+            title: `${joinerName ?? "Your buddy"} joined your tally`,
+            body: "You can start tallying together.",
+          },
+          {
+            user_id: userId,
+            tally_id: invite.tally_id,
+            type: "member_joined",
+            title: `You joined ${otherName}'s tally`,
+            body: "You can start tallying together.",
+          },
+        ]);
       }
     }
 
