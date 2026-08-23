@@ -88,7 +88,7 @@ export default function SettingsIndex() {
         onPress={() => router.push("/(app)/(tabs)/settings/notifications")}
       />
       <SettingsRow
-        label="Talli currencies"
+        label="Tallies"
         onPress={() => router.push("/(app)/(tabs)/settings/currencies")}
       />
       <AppearanceToggle />

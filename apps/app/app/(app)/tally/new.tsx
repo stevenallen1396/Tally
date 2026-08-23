@@ -1,10 +1,9 @@
 import * as Linking from "expo-linking";
 import { Stack, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Pressable, Share, View } from "react-native";
 
 import { Button } from "@/components/Button";
-import { CurrencyPicker } from "@/components/CurrencyPicker";
 import { Screen } from "@/components/Screen";
 import { SmartBackButton } from "@/components/SmartBackButton";
 import { TextField } from "@/components/TextField";
@@ -18,23 +17,18 @@ export default function NewTally() {
   const router = useRouter();
   const { profile } = useProfile();
   const [partnerLabel, setPartnerLabel] = useState("");
-  const [currency, setCurrency] = useState("GBP");
   const [inviteLink, setInviteLink] = useState<string | null>(null);
   const [inviteCode, setInviteCode] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- seeding the picker from the account's default once it loads.
-    if (profile?.primary_currency) setCurrency(profile.primary_currency);
-  }, [profile]);
-
   const handleCreate = async () => {
     setError(null);
     setSubmitting(true);
 
+    // New tallis start on the account's primary currency — changeable per-talli in Settings.
     const { data: tally, error: tallyError } = await supabase.rpc("create_tally_with_owner", {
-      p_currency: currency,
+      p_currency: profile?.primary_currency ?? "GBP",
     });
     if (tallyError || !tally) {
       setSubmitting(false);
@@ -69,10 +63,6 @@ export default function NewTally() {
           Who&apos;s this talli with? This is just a label for you until they join.
         </ThemedText>
         <TextField label="Buddy's name" value={partnerLabel} onChangeText={setPartnerLabel} />
-        <ThemedText preset="body" color="secondary">
-          Currency
-        </ThemedText>
-        <CurrencyPicker value={currency} onChange={setCurrency} />
         {error ? (
           <ThemedText preset="body" color="debit">
             {error}
