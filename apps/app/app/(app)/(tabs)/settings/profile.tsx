@@ -34,8 +34,7 @@ export default function Profile() {
     setSubmitting(true);
     const { error: updateError } = await supabase
       .from("profiles")
-      .update({ display_name: displayName.trim() })
-      .eq("id", session.user.id);
+      .upsert({ id: session.user.id, display_name: displayName.trim() });
     setSubmitting(false);
 
     if (updateError) {
