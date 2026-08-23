@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Stack } from "expo-router";
-import { useRef, useState } from "react";
+import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from "expo-speech-recognition";
+import { useEffect, useRef, useState } from "react";
 import { FlatList, KeyboardAvoidingView, Platform, Pressable, TextInput, View } from "react-native";
 
 import { Button } from "@/components/Button";
@@ -46,9 +47,55 @@ export default function Chat() {
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dictationAvailable, setDictationAvailable] = useState(false);
+  const [recognizing, setRecognizing] = useState(false);
   const listRef = useRef<FlatList<ChatUIMessage>>(null);
+  const dictationBaseTextRef = useRef("");
 
   const scrollToEnd = () => setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
+
+  useEffect(() => {
+    // expo-speech-recognition's native module isn't present in Expo Go —
+    // this call throws there rather than just returning false, so the mic
+    // button only appears once we know it'll actually work.
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- checking a native module's availability is inherently a one-time effect, not derivable state.
+      setDictationAvailable(ExpoSpeechRecognitionModule.isRecognitionAvailable());
+    } catch {
+      setDictationAvailable(false);
+    }
+  }, []);
+
+  useSpeechRecognitionEvent("result", (event) => {
+    const transcript = event.results[0]?.transcript ?? "";
+    const base = dictationBaseTextRef.current;
+    setInput(base ? `${base} ${transcript}` : transcript);
+  });
+
+  useSpeechRecognitionEvent("end", () => setRecognizing(false));
+
+  useSpeechRecognitionEvent("error", (event) => {
+    setRecognizing(false);
+    if (event.error !== "no-speech") {
+      setError(event.message || "Couldn't hear that — try again.");
+    }
+  });
+
+  const handleMicPress = async () => {
+    if (recognizing) {
+      ExpoSpeechRecognitionModule.stop();
+      return;
+    }
+    setError(null);
+    const perms = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+    if (!perms.granted) {
+      setError("Talli needs microphone access to hear you.");
+      return;
+    }
+    dictationBaseTextRef.current = input.trim();
+    setRecognizing(true);
+    ExpoSpeechRecognitionModule.start({ lang: "en-US", interimResults: true, continuous: true });
+  };
 
   const handleSend = async () => {
     const text = input.trim();
@@ -229,6 +276,27 @@ export default function Chat() {
               backgroundColor: colors.surface,
             }}
           />
+          {dictationAvailable ? (
+            <Pressable
+              onPress={handleMicPress}
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 22,
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: recognizing ? colors.debit : colors.surface,
+                borderWidth: recognizing ? 0 : 1,
+                borderColor: colors.border,
+              }}
+            >
+              <Ionicons
+                name={recognizing ? "stop" : "mic"}
+                size={20}
+                color={recognizing ? "#FFFDF8" : colors.textPrimary}
+              />
+            </Pressable>
+          ) : null}
           <Pressable
             onPress={handleSend}
             disabled={sending || !input.trim()}

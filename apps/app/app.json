@@ -16,6 +16,13 @@
         {
           "photosPermission": "Talli uses your photo library to set a profile picture."
         }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Talli uses your microphone to let you dictate messages to Talli AI.",
+          "speechRecognitionPermission": "Talli uses speech recognition to turn what you say into text for Talli AI."
+        }
       ]
     ],
     "experiments": {
