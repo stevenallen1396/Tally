@@ -104,6 +104,10 @@ export function useNotifications() {
   const userId = session?.user.id;
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
+  // Unique per mount — a hardcoded channel name collides (and crashes) if a
+  // second instance of this hook is ever alive at the same time, e.g. a
+  // background tab screen kept mounted by the tab navigator.
+  const [channelName] = useState(() => `notifications-inbox-${Math.random().toString(36).slice(2)}`);
 
   const refetch = useCallback(() => {
     if (!userId) return;
@@ -119,7 +123,7 @@ export function useNotifications() {
     refetch();
 
     const channel = supabase
-      .channel("notifications-inbox")
+      .channel(channelName)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
@@ -130,7 +134,7 @@ export function useNotifications() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId, refetch]);
+  }, [userId, refetch, channelName]);
 
   const markRead = useCallback(async (id: string) => {
     setNotifications((prev) =>

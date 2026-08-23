@@ -43,6 +43,10 @@ export function useTallyDetail(tallyId: string) {
   const [entries, setEntries] = useState<EntryRowData[]>([]);
   const [balanceMinor, setBalanceMinor] = useState(0);
   const [entriesLoading, setEntriesLoading] = useState(true);
+  // Unique per mount — a name shared across instances (e.g. revisiting the
+  // same tally while a previous instance is still mounted in the
+  // background) crashes on double-subscribe.
+  const [channelName] = useState(() => `tally-${tallyId}-${Math.random().toString(36).slice(2)}`);
 
   const refetch = useCallback(() => {
     if (!userId) return;
@@ -61,7 +65,7 @@ export function useTallyDetail(tallyId: string) {
     refetch();
 
     const channel = supabase
-      .channel(`tally-${tallyId}`)
+      .channel(channelName)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "entries", filter: `tally_id=eq.${tallyId}` },
@@ -72,7 +76,7 @@ export function useTallyDetail(tallyId: string) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [tallyId, userId, refetch]);
+  }, [tallyId, userId, refetch, channelName]);
 
   return {
     partnerName,

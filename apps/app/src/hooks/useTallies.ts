@@ -96,6 +96,10 @@ export function useTallies() {
   const userId = session?.user.id;
   const [tallies, setTallies] = useState<TallyCardData[]>([]);
   const [loading, setLoading] = useState(true);
+  // Unique per mount — a hardcoded channel name collides (and crashes) if a
+  // second instance of this hook is ever alive at the same time, e.g. a
+  // background tab screen kept mounted by the tab navigator.
+  const [channelName] = useState(() => `dashboard-tallies-${Math.random().toString(36).slice(2)}`);
 
   const refetch = useCallback(() => {
     if (!userId) return;
@@ -115,7 +119,7 @@ export function useTallies() {
     refetch();
 
     const channel = supabase
-      .channel("dashboard-tallies")
+      .channel(channelName)
       .on("postgres_changes", { event: "*", schema: "public", table: "entries" }, refetch)
       .on("postgres_changes", { event: "*", schema: "public", table: "tally_members" }, refetch)
       .subscribe();
@@ -123,7 +127,7 @@ export function useTallies() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId, refetch]);
+  }, [userId, refetch, channelName]);
 
   return { tallies, loading, refetch };
 }
