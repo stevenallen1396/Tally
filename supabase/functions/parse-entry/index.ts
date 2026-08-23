@@ -30,9 +30,20 @@ export default {
     }
 
     // RLS-scoped: only returns a row if the caller is actually a member of
-    // this tally. A tally always has exactly two members, so the
-    // counterparty is never ambiguous — the name in the sentence is only
-    // sanity-checked against it, never searched for.
+    // this tally.
+    const { data: ownMembership } = await supabase
+      .from("tally_members")
+      .select("user_id")
+      .eq("tally_id", tally_id)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (!ownMembership) {
+      return Response.json({ error: "Not a member of this tally" }, { status: 400 });
+    }
+
+    // A tally always has at most two members, so the counterparty is never
+    // ambiguous — the name in the sentence is only sanity-checked against
+    // it, never searched for. No buddy yet just means no check to make.
     const { data: otherMember } = await supabase
       .from("tally_members")
       .select("user_id")
@@ -40,27 +51,31 @@ export default {
       .neq("user_id", userId)
       .maybeSingle();
 
-    if (!otherMember) {
-      return Response.json({ error: "Not a member of this tally, or no partner has joined yet" }, { status: 400 });
+    let partnerName = "your buddy";
+    if (otherMember) {
+      const { data: partnerProfile } = await supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("id", otherMember.user_id)
+        .maybeSingle();
+      partnerName = partnerProfile?.display_name ?? "your buddy";
     }
-
-    const { data: partnerProfile } = await supabase
-      .from("profiles")
-      .select("display_name")
-      .eq("id", otherMember.user_id)
-      .maybeSingle();
-    const partnerName = partnerProfile?.display_name ?? "your buddy";
 
     const genai = new GoogleGenAI({ apiKey: Deno.env.get("GEMINI_API_KEY") });
     const model = Deno.env.get("GEMINI_MODEL") ?? "gemini-flash-lite-latest";
 
     const systemInstruction =
       `You turn a short sentence about a shared expense into a structured record for a two-person IOU ledger app called Talli. ` +
-      `The user's buddy is named "${partnerName}". The currency is always GBP. ` +
+      (otherMember
+        ? `The user's buddy is named "${partnerName}". `
+        : `The user's buddy hasn't joined the tally yet, so their real name isn't known — never flag a name_mismatch for this reason. `) +
+      `The currency is always GBP. ` +
       `"amount_minor" is the amount in pence (e.g. £5 -> 500). ` +
       `"direction" is "they_owe" if the buddy now owes the user money, or "i_owe" if the user now owes the buddy money. ` +
       `"note" is a short (under 6 words) description of what the money was for. ` +
-      `"name_mismatch" is true only if the sentence names a specific person who is clearly NOT "${partnerName}" (a plain pronoun or no name at all is not a mismatch). ` +
+      (otherMember
+        ? `"name_mismatch" is true only if the sentence names a specific person who is clearly NOT "${partnerName}" (a plain pronoun or no name at all is not a mismatch). `
+        : `"name_mismatch" should always be false. `) +
       `"confidence" reflects how sure you are about the amount and direction specifically.`;
 
     const response = await genai.models.generateContent({

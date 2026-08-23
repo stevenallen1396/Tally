@@ -39,6 +39,13 @@ export default function Notifications() {
           const isCredit = (item.amountMinor ?? 0) >= 0;
           const amountColor = isEven ? colors.textSecondary : isCredit ? colors.credit : colors.debit;
           const amountBg = isEven ? colors.background : isCredit ? colors.creditBg : colors.debitBg;
+          // Membership events aren't "about" an entry from the other
+          // person, so there's no reliable partner name to head them with
+          // (member_left in particular — the other member's tally_members
+          // row is already gone by the time this notification exists).
+          const isMembershipEvent = item.type === "member_left" || item.type === "member_joined";
+          const header = isMembershipEvent ? item.title : (item.partnerName ?? "your buddy");
+          const subtitle = isMembershipEvent ? item.body : (item.description ?? item.body);
 
           return (
             <Pressable
@@ -56,10 +63,10 @@ export default function Notifications() {
             >
               <View style={{ flex: 1, gap: 2 }}>
                 <ThemedText preset="bodyEmphasis" style={{ fontSize: 17, lineHeight: 22 }}>
-                  {item.partnerName ?? "your buddy"}
+                  {header}
                 </ThemedText>
                 <ThemedText preset="body" color="secondary">
-                  {item.description ?? item.body}
+                  {subtitle}
                 </ThemedText>
                 <ThemedText preset="ledgerMeta" color="secondary">
                   {formatWhen(item.createdAt)}

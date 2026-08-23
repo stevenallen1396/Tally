@@ -98,15 +98,19 @@ export default function Chat() {
       .neq("user_id", session.user.id)
       .maybeSingle();
 
-    if (memberError || !otherMember) {
-      setError("Couldn't find that tally's other member — try adding it manually instead.");
+    if (memberError) {
+      setError(memberError.message);
       return;
     }
 
+    // otherMember may be null if the buddy hasn't joined that tally yet —
+    // the entry still saves with a pending counterparty, backfilled once
+    // they join.
+    const otherUserId = otherMember?.user_id ?? null;
     const { error: insertError } = await supabase.from("entries").insert({
       tally_id: entry.tally_id,
-      debtor_id: entry.direction === "i_owe" ? session.user.id : otherMember.user_id,
-      creditor_id: entry.direction === "i_owe" ? otherMember.user_id : session.user.id,
+      debtor_id: entry.direction === "i_owe" ? session.user.id : otherUserId,
+      creditor_id: entry.direction === "i_owe" ? otherUserId : session.user.id,
       amount_minor: entry.amount_minor,
       note: entry.note || null,
       source: "nlp",

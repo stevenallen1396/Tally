@@ -44,8 +44,8 @@ export type Database = {
           amount_minor: number
           created_at: string
           created_by: string
-          creditor_id: string
-          debtor_id: string
+          creditor_id: string | null
+          debtor_id: string | null
           deleted_at: string | null
           id: string
           note: string | null
@@ -59,8 +59,8 @@ export type Database = {
           amount_minor: number
           created_at?: string
           created_by: string
-          creditor_id: string
-          debtor_id: string
+          creditor_id?: string | null
+          debtor_id?: string | null
           deleted_at?: string | null
           id?: string
           note?: string | null
@@ -74,8 +74,8 @@ export type Database = {
           amount_minor?: number
           created_at?: string
           created_by?: string
-          creditor_id?: string
-          debtor_id?: string
+          creditor_id?: string | null
+          debtor_id?: string | null
           deleted_at?: string | null
           id?: string
           note?: string | null

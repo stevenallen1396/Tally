@@ -43,8 +43,9 @@ export default {
       .eq("tally_id", invite.tally_id)
       .eq("user_id", userId)
       .maybeSingle();
+    const isNewJoin = !existingMembership;
 
-    if (!existingMembership) {
+    if (isNewJoin) {
       const { error: joinError } = await admin
         .from("tally_members")
         .insert({ tally_id: invite.tally_id, user_id: userId, role: "member" });
@@ -56,10 +57,49 @@ export default {
     // Full accounts get a profile via the create-profile screen, but guests
     // skip that step entirely — without this, every other tally member's
     // view shows them as "Waiting to join" forever, even after joining.
-    const { data: existingProfile } = await admin.from("profiles").select("id").eq("id", userId).maybeSingle();
+    const { data: existingProfile } = await admin
+      .from("profiles")
+      .select("id, display_name")
+      .eq("id", userId)
+      .maybeSingle();
 
+    let joinerName = existingProfile?.display_name ?? null;
     if (!existingProfile) {
-      await admin.from("profiles").insert({ id: userId, display_name: invite.invitee_label ?? "Guest" });
+      joinerName = invite.invitee_label ?? "Guest";
+      await admin.from("profiles").insert({ id: userId, display_name: joinerName });
+    }
+
+    if (isNewJoin) {
+      // The creator may have logged entries before anyone joined — those
+      // have a null "pending" side (whichever wasn't the creator). Now that
+      // there's a real second member, fill it in on every such entry.
+      await admin
+        .from("entries")
+        .update({ debtor_id: userId })
+        .eq("tally_id", invite.tally_id)
+        .is("debtor_id", null);
+      await admin
+        .from("entries")
+        .update({ creditor_id: userId })
+        .eq("tally_id", invite.tally_id)
+        .is("creditor_id", null);
+
+      const { data: otherMember } = await admin
+        .from("tally_members")
+        .select("user_id")
+        .eq("tally_id", invite.tally_id)
+        .neq("user_id", userId)
+        .maybeSingle();
+
+      if (otherMember) {
+        await admin.from("notifications").insert({
+          user_id: otherMember.user_id,
+          tally_id: invite.tally_id,
+          type: "member_joined",
+          title: `${joinerName ?? "Your buddy"} joined your tally`,
+          body: "You can start tallying together.",
+        });
+      }
     }
 
     if (invite.status !== "accepted") {

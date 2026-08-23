@@ -49,7 +49,7 @@ export default function AddEntry() {
     source: "manual" | "nlp";
     rawInput?: string;
   }) => {
-    if (!session || !partnerId) return;
+    if (!session) return;
     setError(null);
     setSubmitting(true);
     const { error: insertError } = await supabase.from("entries").insert({
@@ -104,22 +104,6 @@ export default function AddEntry() {
     insertEntry({ amountMinor, direction, note, source: "manual" });
   };
 
-  if (awaitingPartner) {
-    return (
-      <Screen>
-        <Stack.Screen
-          options={{ headerLeft: () => <SmartBackButton fallbackHref={`/(app)/tally/${id}`} /> }}
-        />
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", gap: 8 }}>
-          <ThemedText preset="body" color="secondary" style={{ textAlign: "center" }}>
-            {partnerName} hasn&apos;t joined this tally yet — you&apos;ll be able to add entries
-            once they do.
-          </ThemedText>
-        </View>
-      </Screen>
-    );
-  }
-
   return (
     <Screen>
       <Stack.Screen
@@ -150,6 +134,13 @@ export default function AddEntry() {
           </Pressable>
         ))}
       </View>
+
+      {awaitingPartner ? (
+        <ThemedText preset="ledgerMeta" color="secondary" style={{ marginBottom: 16 }}>
+          {partnerName} hasn&apos;t joined yet — this entry will show up for them as soon as they
+          do.
+        </ThemedText>
+      ) : null}
 
       {mode === "chat" ? (
         parsed ? (
@@ -215,7 +206,7 @@ export default function AddEntry() {
             <Button
               label={parsing ? "Thinking…" : "Continue"}
               onPress={handleParse}
-              disabled={parsing || !chatText.trim() || !partnerId}
+              disabled={parsing || !chatText.trim()}
             />
           </View>
         )
@@ -270,7 +261,7 @@ export default function AddEntry() {
           <Button
             label={submitting ? "Adding…" : "Add entry"}
             onPress={handleManualSubmit}
-            disabled={submitting || !partnerId || !Number(amount)}
+            disabled={submitting || !Number(amount)}
           />
         </View>
       )}

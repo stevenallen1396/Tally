@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 export type NotificationItem = {
   id: string;
   tallyId: string | null;
+  type: string;
   title: string;
   body: string;
   createdAt: string;
@@ -17,6 +18,7 @@ export type NotificationItem = {
 type NotificationRow = {
   id: string;
   tally_id: string | null;
+  type: string;
   title: string;
   body: string;
   created_at: string;
@@ -26,7 +28,7 @@ type NotificationRow = {
 async function fetchNotifications(userId: string): Promise<NotificationItem[]> {
   const { data, error } = await supabase
     .from("notifications")
-    .select("id, tally_id, title, body, created_at, data")
+    .select("id, tally_id, type, title, body, created_at, data")
     .eq("user_id", userId)
     .order("created_at", { ascending: false })
     .limit(50);
@@ -86,6 +88,7 @@ async function fetchNotifications(userId: string): Promise<NotificationItem[]> {
     return {
       id: row.id,
       tallyId: row.tally_id,
+      type: row.type,
       title: row.title,
       body: row.body,
       createdAt: row.created_at,
