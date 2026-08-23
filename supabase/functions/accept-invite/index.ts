@@ -10,8 +10,9 @@ export default {
 
     let token: string | undefined;
     let code: string | undefined;
+    let display_name: string | undefined;
     try {
-      ({ token, code } = await req.json());
+      ({ token, code, display_name } = await req.json());
     } catch {
       // fall through to the missing-token check below
     }
@@ -63,10 +64,14 @@ export default {
       .eq("id", userId)
       .maybeSingle();
 
+    const trimmedName = display_name?.trim();
     let joinerName = existingProfile?.display_name ?? null;
     if (!existingProfile) {
-      joinerName = invite.invitee_label ?? "Guest";
+      joinerName = trimmedName || invite.invitee_label || "Guest";
       await admin.from("profiles").insert({ id: userId, display_name: joinerName });
+    } else if (existingProfile.display_name === "Guest" && trimmedName) {
+      joinerName = trimmedName;
+      await admin.from("profiles").update({ display_name: joinerName }).eq("id", userId);
     }
 
     if (isNewJoin) {
