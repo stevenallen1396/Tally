@@ -6,6 +6,14 @@
 -- placeholder row here too, on the same "Guest" default, so there's always
 -- something to show — editable later via Settings > Profile.
 
+-- One-time backfill for tally members created before this fix existed.
+insert into profiles (id, display_name)
+select tm.user_id, 'Guest'
+from tally_members tm
+left join profiles p on p.id = tm.user_id
+where p.id is null
+on conflict (id) do nothing;
+
 create or replace function create_tally_with_owner(p_currency text default 'GBP')
 returns tallies language plpgsql security definer as $$
 declare
