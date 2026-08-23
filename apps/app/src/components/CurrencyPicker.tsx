@@ -32,7 +32,7 @@ export function CurrencyPicker({
             }}
           >
             <ThemedText preset="bodyEmphasis" style={{ color: selected ? "#FFFDF8" : colors.textPrimary }}>
-              {currency.symbol} {currency.code}
+              {currency.label}
             </ThemedText>
           </Pressable>
         );

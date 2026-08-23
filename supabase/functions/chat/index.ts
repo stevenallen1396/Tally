@@ -17,7 +17,7 @@ type ChatReply = {
 // Mirrors packages/shared/src/domain.ts's curated CURRENCIES list — edge
 // functions run in a separate Deno runtime and can't import from the
 // workspace package, so this stays in sync by hand.
-const CURRENCY_SYMBOLS: Record<string, string> = { GBP: "£", USD: "$", EUR: "€", CAD: "$", AUD: "$" };
+const CURRENCY_SYMBOLS: Record<string, string> = { GBP: "£", USD: "$", EUR: "€" };
 function currencySymbol(currency: string): string {
   return CURRENCY_SYMBOLS[currency] ?? `${currency} `;
 }

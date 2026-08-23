@@ -1,9 +1,7 @@
 export const CURRENCIES = [
-  { code: "GBP", symbol: "£", label: "British Pound" },
-  { code: "USD", symbol: "$", label: "US Dollar" },
-  { code: "EUR", symbol: "€", label: "Euro" },
-  { code: "CAD", symbol: "$", label: "Canadian Dollar" },
-  { code: "AUD", symbol: "$", label: "Australian Dollar" },
+  { code: "GBP", symbol: "£", label: "Pounds" },
+  { code: "USD", symbol: "$", label: "Dollars" },
+  { code: "EUR", symbol: "€", label: "Euros" },
 ] as const;
 
 export type CurrencyCode = (typeof CURRENCIES)[number]["code"];
