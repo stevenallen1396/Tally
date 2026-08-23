@@ -43,7 +43,7 @@ export type Database = {
         Row: {
           amount_minor: number
           created_at: string
-          created_by: string
+          created_by: string | null
           creditor_id: string | null
           debtor_id: string | null
           deleted_at: string | null
@@ -106,7 +106,7 @@ export type Database = {
         Row: {
           accepted_by: string | null
           created_at: string
-          created_by: string
+          created_by: string | null
           expires_at: string
           id: string
           invite_code: string | null
@@ -244,10 +244,10 @@ export type Database = {
           confirmed_at: string | null
           confirmed_by: string | null
           created_at: string
-          creditor_id: string
-          debtor_id: string
+          creditor_id: string | null
+          debtor_id: string | null
           id: string
-          initiated_by: string
+          initiated_by: string | null
           status: string
           tally_id: string
         }
@@ -291,7 +291,7 @@ export type Database = {
           archived_by: string | null
           archived_by_name: string | null
           created_at: string
-          created_by: string
+          created_by: string | null
           currency: string
           id: string
         }
@@ -396,6 +396,10 @@ export type Database = {
         Returns: string
       }
       is_tally_member: { Args: { check_tally_id: string }; Returns: boolean }
+      leave_all_tallies: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       leave_tally: {
         Args: { p_tally_id: string }
         Returns: undefined

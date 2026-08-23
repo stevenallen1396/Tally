@@ -15,8 +15,8 @@ import { supabase } from "@/lib/supabase";
 type PendingSettlement = {
   id: string;
   amount_minor: number;
-  debtor_id: string;
-  initiated_by: string;
+  debtor_id: string | null;
+  initiated_by: string | null;
 };
 
 export default function SettleConfirm() {
