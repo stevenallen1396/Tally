@@ -35,7 +35,10 @@ export default {
       return Response.json({ error: "This invite link has expired" }, { status: 400 });
     }
     if (invite.status === "accepted" && invite.accepted_by !== userId) {
-      return Response.json({ error: "This invite has already been used" }, { status: 400 });
+      return Response.json(
+        { error: code ? "This code has self-destructed" : "This link has self-destructed" },
+        { status: 400 },
+      );
     }
     if (invite.status === "revoked") {
       return Response.json({ error: "This invite link was revoked" }, { status: 400 });
