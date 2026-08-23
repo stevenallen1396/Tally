@@ -46,15 +46,17 @@ export default function TallyDetail() {
 
   const isEven = balanceMinor === 0;
   const isCredit = balanceMinor >= 0;
-  const statusLabel = closed
-    ? `${partnerName} left this talli`
-    : awaitingPartner
-      ? "waiting to join"
-      : isEven
-        ? "evens stevens"
-        : isCredit
-          ? "owes you"
-          : "you owe them";
+  const statusLabel = loading
+    ? ""
+    : closed
+      ? `${partnerName} left this talli`
+      : awaitingPartner
+        ? "waiting to join"
+        : isEven
+          ? "evens stevens"
+          : isCredit
+            ? "owes you"
+            : "you owe them";
 
   return (
     <Screen style={{ padding: 0 }}>
@@ -88,8 +90,9 @@ export default function TallyDetail() {
           preset="ledgerBalance"
           color={closed || awaitingPartner || isEven ? "secondary" : isCredit ? "credit" : "debit"}
         >
-          {closed || awaitingPartner || isEven ? "" : isCredit ? "+" : "-"}
-          {formatAbs(balanceMinor, currency)}
+          {loading
+            ? ""
+            : `${closed || awaitingPartner || isEven ? "" : isCredit ? "+" : "-"}${formatAbs(balanceMinor, currency)}`}
         </ThemedText>
         <ThemedText preset="ledgerMeta" color="secondary">
           {statusLabel}

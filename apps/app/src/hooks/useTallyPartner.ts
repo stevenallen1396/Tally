@@ -7,7 +7,7 @@ export function useTallyPartner(tallyId: string) {
   const { session } = useSession();
   const userId = session?.user.id;
   const [partnerId, setPartnerId] = useState<string | null>(null);
-  const [partnerName, setPartnerName] = useState("your buddy");
+  const [partnerName, setPartnerName] = useState("");
   const [awaitingPartner, setAwaitingPartner] = useState(false);
   const [closed, setClosed] = useState(false);
   const [currency, setCurrency] = useState("GBP");
