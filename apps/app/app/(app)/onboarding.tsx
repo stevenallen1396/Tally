@@ -9,6 +9,7 @@ import { TextField } from "@/components/TextField";
 import { ThemedText } from "@/components/ThemedText";
 import { useSession } from "@/lib/SessionProvider";
 import { supabase } from "@/lib/supabase";
+import { useOnboardingStore } from "@/stores/onboardingStore";
 
 export default function Onboarding() {
   const router = useRouter();
@@ -31,6 +32,7 @@ export default function Onboarding() {
       setError(upsertError.message);
       return;
     }
+    useOnboardingStore.getState().markCompleted();
     router.replace("/(app)/tally/new");
   };
 

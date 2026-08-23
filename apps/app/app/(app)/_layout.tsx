@@ -5,6 +5,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useSession } from "@/lib/SessionProvider";
 import { registerForPushNotifications } from "@/lib/pushNotifications";
 import { supabase } from "@/lib/supabase";
+import { useOnboardingStore } from "@/stores/onboardingStore";
 import { useStackHeaderOptions } from "@/theme/stackHeaderOptions";
 
 // RLS already scopes all data server-side — this guard's job is just making
@@ -15,6 +16,7 @@ import { useStackHeaderOptions } from "@/theme/stackHeaderOptions";
 export default function AppLayout() {
   const { session, loading } = useSession();
   const { profile, loading: profileLoading } = useProfile();
+  const completedThisSession = useOnboardingStore((state) => state.completedThisSession);
   const pathname = usePathname();
   const headerOptions = useStackHeaderOptions();
 
@@ -38,7 +40,7 @@ export default function AppLayout() {
   // currency step before anything else. Invite-link joiners already picked
   // a name inline on that screen, so this never re-triggers for them —
   // they land with a real display_name already set.
-  const needsOnboarding = !profile || profile.display_name === "Guest";
+  const needsOnboarding = !completedThisSession && (!profile || profile.display_name === "Guest");
   if (needsOnboarding && pathname !== "/onboarding") {
     return <Redirect href="/(app)/onboarding" />;
   }
