@@ -1,4 +1,16 @@
-export const CURRENCY = "GBP" as const;
+export const CURRENCIES = [
+  { code: "GBP", symbol: "£", label: "British Pound" },
+  { code: "USD", symbol: "$", label: "US Dollar" },
+  { code: "EUR", symbol: "€", label: "Euro" },
+  { code: "CAD", symbol: "$", label: "Canadian Dollar" },
+  { code: "AUD", symbol: "$", label: "Australian Dollar" },
+] as const;
+
+export type CurrencyCode = (typeof CURRENCIES)[number]["code"];
+
+export function currencySymbol(currency: string): string {
+  return CURRENCIES.find((c) => c.code === currency)?.symbol ?? `${currency} `;
+}
 
 export type EntrySource = "manual" | "nlp" | "settlement";
 export type SettlementStatus = "pending" | "confirmed" | "declined" | "cancelled";
@@ -8,15 +20,17 @@ export type NotificationType =
   | "entry_edited"
   | "settlement_proposed"
   | "settlement_confirmed"
-  | "settlement_declined";
+  | "settlement_declined"
+  | "member_left"
+  | "member_joined";
 
-/** Formats pence as an unsigned GBP string, e.g. 1250 -> "£12.50". */
-export function formatAbsGBP(amountMinor: number): string {
-  return `£${(Math.abs(amountMinor) / 100).toFixed(2)}`;
+/** Formats pence as an unsigned string in the given currency, e.g. (1250, "GBP") -> "£12.50". */
+export function formatAbs(amountMinor: number, currency: string): string {
+  return `${currencySymbol(currency)}${(Math.abs(amountMinor) / 100).toFixed(2)}`;
 }
 
-/** Formats pence as a signed GBP string, e.g. 1250 -> "+£12.50", -430 -> "-£4.30". */
-export function formatMinorGBP(amountMinor: number): string {
+/** Formats pence as a signed string in the given currency, e.g. (1250, "GBP") -> "+£12.50". */
+export function formatMinor(amountMinor: number, currency: string): string {
   const sign = amountMinor >= 0 ? "+" : "-";
-  return `${sign}${formatAbsGBP(amountMinor)}`;
+  return `${sign}${formatAbs(amountMinor, currency)}`;
 }

@@ -1,4 +1,4 @@
-import { formatAbsGBP } from "@tally/shared";
+import { formatAbs } from "@tally/shared";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
@@ -22,7 +22,7 @@ type PendingSettlement = {
 export default function SettleConfirm() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { session } = useSession();
-  const { partnerName } = useTallyPartner(id);
+  const { partnerName, currency } = useTallyPartner(id);
   const [settlement, setSettlement] = useState<PendingSettlement | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -96,7 +96,7 @@ export default function SettleConfirm() {
           {isInitiator ? "Settlement proposed" : "Confirm settlement"}
         </ThemedText>
         <ThemedText preset="ledgerBalance" color={youAreOwed ? "credit" : "debit"}>
-          {formatAbsGBP(settlement.amount_minor)}
+          {formatAbs(settlement.amount_minor, currency)}
         </ThemedText>
         <ThemedText preset="body" color="secondary" style={{ textAlign: "center" }}>
           {isInitiator

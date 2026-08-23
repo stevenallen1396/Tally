@@ -10,7 +10,7 @@ function formatEntryDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short" });
 }
 
-async function fetchEntries(tallyId: string, userId: string) {
+async function fetchEntries(tallyId: string, userId: string, currency: string) {
   const { data: entries, error } = await supabase
     .from("entries")
     .select("id, debtor_id, amount_minor, note, source, created_at")
@@ -24,6 +24,7 @@ async function fetchEntries(tallyId: string, userId: string) {
     note: entry.note ?? (entry.source === "settlement" ? "Settled up" : "Entry"),
     amountMinor: entry.debtor_id === userId ? -entry.amount_minor : entry.amount_minor,
     createdAt: formatEntryDate(entry.created_at),
+    currency,
   }));
 
   const balanceMinor = rows.reduce((sum, row) => sum + row.amountMinor, 0);
@@ -45,6 +46,7 @@ export function useTallyDetail(tallyId: string) {
     partnerName,
     awaitingPartner,
     closed,
+    currency,
     loading: partnerLoading,
     refetch: refetchPartner,
   } = useTallyPartner(tallyId);
@@ -60,14 +62,14 @@ export function useTallyDetail(tallyId: string) {
   const refetch = useCallback(() => {
     if (!userId) return;
     setEntriesLoading(true);
-    fetchEntries(tallyId, userId)
+    fetchEntries(tallyId, userId, currency)
       .then(({ entries, balanceMinor, hasPendingSettlement }) => {
         setEntries(entries);
         setBalanceMinor(balanceMinor);
         setHasPendingSettlement(hasPendingSettlement);
       })
       .finally(() => setEntriesLoading(false));
-  }, [tallyId, userId]);
+  }, [tallyId, userId, currency]);
 
   useEffect(() => {
     if (!userId) return;
@@ -97,6 +99,7 @@ export function useTallyDetail(tallyId: string) {
     partnerName,
     awaitingPartner,
     closed,
+    currency,
     entries,
     balanceMinor,
     hasPendingSettlement,

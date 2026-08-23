@@ -1,4 +1,4 @@
-import { formatAbsGBP } from "@tally/shared";
+import { formatAbs } from "@tally/shared";
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { FlatList, Pressable, TextInput, View } from "react-native";
@@ -16,8 +16,17 @@ export default function TallyDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { colors, typography } = useTheme();
-  const { partnerName, awaitingPartner, closed, entries, balanceMinor, hasPendingSettlement, loading, refetchPartner } =
-    useTallyDetail(id);
+  const {
+    partnerName,
+    awaitingPartner,
+    closed,
+    currency,
+    entries,
+    balanceMinor,
+    hasPendingSettlement,
+    loading,
+    refetchPartner,
+  } = useTallyDetail(id);
   const [editingName, setEditingName] = useState(false);
   const [nameDraft, setNameDraft] = useState("");
   const [savingName, setSavingName] = useState(false);
@@ -80,7 +89,7 @@ export default function TallyDetail() {
           color={closed || awaitingPartner || isEven ? "secondary" : isCredit ? "credit" : "debit"}
         >
           {closed || awaitingPartner || isEven ? "" : isCredit ? "+" : "-"}
-          {formatAbsGBP(balanceMinor)}
+          {formatAbs(balanceMinor, currency)}
         </ThemedText>
         <ThemedText preset="ledgerMeta" color="secondary">
           {statusLabel}

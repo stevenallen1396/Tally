@@ -1,3 +1,4 @@
+import { currencySymbol } from "@tally/shared";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Pressable, View } from "react-native";
@@ -21,7 +22,7 @@ export default function AddEntry() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { colors } = useTheme();
   const { session } = useSession();
-  const { partnerId, partnerName, awaitingPartner } = useTallyPartner(id);
+  const { partnerId, partnerName, awaitingPartner, currency } = useTallyPartner(id);
   const [amount, setAmount] = useState("");
   const [note, setNote] = useState("");
   const [direction, setDirection] = useState<Direction>("they_owe");
@@ -101,7 +102,7 @@ export default function AddEntry() {
           </Pressable>
         </View>
         <TextField
-          label="Amount (£)"
+          label={`Amount (${currencySymbol(currency)})`}
           value={amount}
           onChangeText={setAmount}
           keyboardType="decimal-pad"

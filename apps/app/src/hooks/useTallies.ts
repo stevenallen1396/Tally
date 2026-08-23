@@ -18,12 +18,13 @@ async function fetchTallies(userId: string): Promise<TallyCardData[]> {
 
   const { data: talliesData, error: talliesError } = await supabase
     .from("tallies")
-    .select("id, archived_at, archived_by_name")
+    .select("id, archived_at, archived_by_name, currency")
     .in("id", tallyIds);
   if (talliesError) throw talliesError;
 
   const closedByTally = new Map((talliesData ?? []).map((t) => [t.id, t.archived_at !== null]));
   const closedNameByTally = new Map((talliesData ?? []).map((t) => [t.id, t.archived_by_name]));
+  const currencyByTally = new Map((talliesData ?? []).map((t) => [t.id, t.currency]));
 
   const { data: otherMembers, error: otherMembersError } = await supabase
     .from("tally_members")
@@ -86,6 +87,7 @@ async function fetchTallies(userId: string): Promise<TallyCardData[]> {
       partnerAvatarUrl: (otherUserId ? avatarUrlByUserId.get(otherUserId) : null) ?? null,
       awaitingPartner,
       closed,
+      currency: currencyByTally.get(tallyId) ?? "GBP",
       balanceMinor: balanceByTally.get(tallyId) ?? 0,
     };
   });

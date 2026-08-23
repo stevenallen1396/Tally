@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useSession } from "@/lib/SessionProvider";
 
-type Profile = { id: string; display_name: string; avatar_url: string | null };
+type Profile = { id: string; display_name: string; avatar_url: string | null; primary_currency: string };
 
 export function useProfile() {
   const { session } = useSession();
@@ -15,7 +15,7 @@ export function useProfile() {
     setLoading(true);
     supabase
       .from("profiles")
-      .select("id, display_name, avatar_url")
+      .select("id, display_name, avatar_url, primary_currency")
       .eq("id", session.user.id)
       .maybeSingle()
       .then(({ data }) => {

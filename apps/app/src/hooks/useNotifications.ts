@@ -13,6 +13,7 @@ export type NotificationItem = {
   partnerName: string | null;
   description: string | null;
   amountMinor: number | null; // signed relative to viewer (positive = credit, negative = debit); null if unknown
+  currency: string;
 };
 
 type NotificationRow = {
@@ -42,7 +43,7 @@ async function fetchNotifications(userId: string): Promise<NotificationItem[]> {
     ...new Set(rows.map((row) => row.data?.settlement_id).filter((id): id is string => !!id)),
   ];
 
-  const [otherMembers, entries, settlementEntries] = await Promise.all([
+  const [otherMembers, entries, settlementEntries, tallies] = await Promise.all([
     tallyIds.length > 0
       ? supabase.from("tally_members").select("tally_id, user_id").in("tally_id", tallyIds).neq("user_id", userId)
       : Promise.resolve({ data: [], error: null }),
@@ -55,8 +56,12 @@ async function fetchNotifications(userId: string): Promise<NotificationItem[]> {
           .select("settlement_id, debtor_id, amount_minor, note")
           .in("settlement_id", settlementIds)
       : Promise.resolve({ data: [], error: null }),
+    tallyIds.length > 0
+      ? supabase.from("tallies").select("id, currency").in("id", tallyIds)
+      : Promise.resolve({ data: [], error: null }),
   ]);
 
+  const currencyByTally = new Map((tallies.data ?? []).map((t) => [t.id, t.currency]));
   const otherUserIdByTally = new Map((otherMembers.data ?? []).map((m) => [m.tally_id, m.user_id]));
   const otherUserIds = [...new Set(otherUserIdByTally.values())];
   const { data: profiles } =
@@ -95,6 +100,7 @@ async function fetchNotifications(userId: string): Promise<NotificationItem[]> {
       partnerName,
       description,
       amountMinor,
+      currency: (row.tally_id ? currencyByTally.get(row.tally_id) : null) ?? "GBP",
     };
   });
 }

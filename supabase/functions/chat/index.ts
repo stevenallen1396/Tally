@@ -14,6 +14,14 @@ type ChatReply = {
   };
 };
 
+// Mirrors packages/shared/src/domain.ts's curated CURRENCIES list — edge
+// functions run in a separate Deno runtime and can't import from the
+// workspace package, so this stays in sync by hand.
+const CURRENCY_SYMBOLS: Record<string, string> = { GBP: "£", USD: "$", EUR: "€", CAD: "$", AUD: "$" };
+function currencySymbol(currency: string): string {
+  return CURRENCY_SYMBOLS[currency] ?? `${currency} `;
+}
+
 const RESPONSE_SCHEMA = {
   type: "OBJECT",
   properties: {
@@ -54,6 +62,11 @@ export default {
     // exactly like the existing per-tally chat/dictate flow on Add entry.
     const { data: memberships } = await supabase.from("tally_members").select("tally_id").eq("user_id", userId);
     const tallyIds = (memberships ?? []).map((m) => m.tally_id);
+
+    const { data: talliesData } = tallyIds.length
+      ? await supabase.from("tallies").select("id, currency").in("id", tallyIds)
+      : { data: [] };
+    const currencyByTally = new Map((talliesData ?? []).map((t) => [t.id, t.currency]));
 
     const { data: otherMembers } = await supabase
       .from("tally_members")
@@ -104,6 +117,8 @@ export default {
 
     const tallySummaries = tallyIds.map((tallyId) => {
       const name = nameByTally.get(tallyId);
+      const currency = currencyByTally.get(tallyId) ?? "GBP";
+      const symbol = currencySymbol(currency);
       const tallyEntries = entriesByTally.get(tallyId) ?? [];
       const balanceMinor = tallyEntries.reduce(
         (sum, e) => sum + (e.debtor_id === userId ? -e.amount_minor : e.amount_minor),
@@ -114,18 +129,19 @@ export default {
         .map((e) => {
           const sign = e.debtor_id === userId ? "user owes" : `${name} owes`;
           const date = new Date(e.created_at).toISOString().slice(0, 10);
-          return `  - ${date}: ${sign} £${(e.amount_minor / 100).toFixed(2)} — ${e.note ?? "(no note)"}`;
+          return `  - ${date}: ${sign} ${symbol}${(e.amount_minor / 100).toFixed(2)} — ${e.note ?? "(no note)"}`;
         })
         .join("\n");
       return (
-        `Talli with ${name} (tally_id: ${tallyId}): current balance is ` +
-        `£${(Math.abs(balanceMinor) / 100).toFixed(2)} ${balanceMinor === 0 ? "(settled)" : balanceMinor > 0 ? `owed to the user` : `owed by the user`}.\n` +
+        `Talli with ${name} (tally_id: ${tallyId}, currency: ${currency}): current balance is ` +
+        `${symbol}${(Math.abs(balanceMinor) / 100).toFixed(2)} ${balanceMinor === 0 ? "(settled)" : balanceMinor > 0 ? `owed to the user` : `owed by the user`}.\n` +
         `Recent entries:\n${recentLines || "  (none yet)"}`
       );
     });
 
     const systemInstruction =
-      `You are the assistant inside Talli, a two-person shared IOU ledger app. Currency is always GBP.\n` +
+      `You are the assistant inside Talli, a two-person shared IOU ledger app. Each talli has its own ` +
+      `currency, shown per-talli below — always use that talli's own currency, never assume GBP.\n` +
       `You have exactly two jobs, nothing else:\n` +
       `1. Answer questions about the user's tallis and entry history, using ONLY the data given below.\n` +
       `2. Detect when the user is describing a new expense to log, and propose a structured entry for it.\n` +

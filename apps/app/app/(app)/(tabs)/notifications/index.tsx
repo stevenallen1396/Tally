@@ -1,4 +1,4 @@
-import { formatAbsGBP } from "@tally/shared";
+import { formatAbs } from "@tally/shared";
 import { useRouter } from "expo-router";
 import { FlatList, Pressable, View } from "react-native";
 
@@ -82,7 +82,7 @@ export default function Notifications() {
                   }}
                 >
                   <ThemedText preset="ledgerAmount" style={{ color: amountColor }}>
-                    {formatAbsGBP(item.amountMinor)}
+                    {formatAbs(item.amountMinor, item.currency)}
                   </ThemedText>
                 </View>
               ) : null}

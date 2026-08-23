@@ -1,4 +1,4 @@
-import { formatMinorGBP } from "@tally/shared";
+import { formatMinor } from "@tally/shared";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { useTheme } from "@/theme/ThemeProvider";
@@ -10,6 +10,7 @@ export type EntryRowData = {
   note: string;
   amountMinor: number; // positive = credit to viewer, negative = debit
   createdAt: string; // pre-formatted for now
+  currency: string;
 };
 
 export function EntryRow({ data, onPress }: { data: EntryRowData; onPress?: () => void }) {
@@ -28,7 +29,7 @@ export function EntryRow({ data, onPress }: { data: EntryRowData; onPress?: () =
         </ThemedText>
       </View>
       <ThemedText preset="ledgerAmount" color={isCredit ? "credit" : "debit"}>
-        {formatMinorGBP(data.amountMinor)}
+        {formatMinor(data.amountMinor, data.currency)}
       </ThemedText>
     </Pressable>
   );

@@ -1,6 +1,7 @@
-import { Stack } from "expo-router";
+import { Redirect, Stack, usePathname } from "expo-router";
 import { useEffect } from "react";
 
+import { useProfile } from "@/hooks/useProfile";
 import { useSession } from "@/lib/SessionProvider";
 import { registerForPushNotifications } from "@/lib/pushNotifications";
 import { supabase } from "@/lib/supabase";
@@ -13,6 +14,8 @@ import { useStackHeaderOptions } from "@/theme/stackHeaderOptions";
 // requires an account; creating one is an optional prompt from Settings.
 export default function AppLayout() {
   const { session, loading } = useSession();
+  const { profile, loading: profileLoading } = useProfile();
+  const pathname = usePathname();
   const headerOptions = useStackHeaderOptions();
 
   useEffect(() => {
@@ -27,12 +30,22 @@ export default function AppLayout() {
     }
   }, [loading, session]);
 
-  if (loading || !session) {
+  if (loading || !session || profileLoading) {
     return null;
+  }
+
+  // First-time visitors (no real name yet) get a one-time name + primary
+  // currency step before anything else. Invite-link joiners already picked
+  // a name inline on that screen, so this never re-triggers for them —
+  // they land with a real display_name already set.
+  const needsOnboarding = !profile || profile.display_name === "Guest";
+  if (needsOnboarding && pathname !== "/onboarding") {
+    return <Redirect href="/(app)/onboarding" />;
   }
 
   return (
     <Stack screenOptions={{ headerShown: false, ...headerOptions }}>
+      <Stack.Screen name="onboarding" options={{ headerShown: false }} />
       <Stack.Screen name="tally/new" options={{ headerShown: true, title: "Start or join a talli" }} />
       <Stack.Screen name="tally/join" options={{ headerShown: true, title: "Join a talli" }} />
       <Stack.Screen name="tally/[id]/index" options={{ headerShown: true, title: "" }} />

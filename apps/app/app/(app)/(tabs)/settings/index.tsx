@@ -87,6 +87,10 @@ export default function SettingsIndex() {
         label="Notifications"
         onPress={() => router.push("/(app)/(tabs)/settings/notifications")}
       />
+      <SettingsRow
+        label="Talli currencies"
+        onPress={() => router.push("/(app)/(tabs)/settings/currencies")}
+      />
       <AppearanceToggle />
       {isGuest ? null : (
         <Pressable onPress={() => supabase.auth.signOut()} style={{ alignSelf: "center", paddingVertical: 4 }}>

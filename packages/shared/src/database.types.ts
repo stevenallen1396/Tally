@@ -199,18 +199,21 @@ export type Database = {
           created_at: string
           display_name: string
           id: string
+          primary_currency: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
           display_name: string
           id: string
+          primary_currency?: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
           display_name?: string
           id?: string
+          primary_currency?: string
         }
         Relationships: []
       }
@@ -438,6 +441,10 @@ export type Database = {
       }
       set_buddy_nickname: {
         Args: { p_nickname: string; p_tally_id: string }
+        Returns: undefined
+      }
+      set_tally_currency: {
+        Args: { p_currency: string; p_tally_id: string }
         Returns: undefined
       }
       tally_balance_minor: {

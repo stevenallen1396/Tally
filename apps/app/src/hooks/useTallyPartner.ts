@@ -10,6 +10,7 @@ export function useTallyPartner(tallyId: string) {
   const [partnerName, setPartnerName] = useState("your buddy");
   const [awaitingPartner, setAwaitingPartner] = useState(false);
   const [closed, setClosed] = useState(false);
+  const [currency, setCurrency] = useState("GBP");
   const [loading, setLoading] = useState(true);
 
   const refetch = useCallback(async () => {
@@ -28,9 +29,10 @@ export function useTallyPartner(tallyId: string) {
 
     const { data: tally } = await supabase
       .from("tallies")
-      .select("archived_at, archived_by_name")
+      .select("archived_at, archived_by_name, currency")
       .eq("id", tallyId)
       .maybeSingle();
+    setCurrency(tally?.currency ?? "GBP");
 
     if (tally?.archived_at) {
       setClosed(true);
@@ -77,5 +79,5 @@ export function useTallyPartner(tallyId: string) {
     refetch();
   }, [refetch]);
 
-  return { partnerId, partnerName, awaitingPartner, closed, loading, refetch };
+  return { partnerId, partnerName, awaitingPartner, closed, currency, loading, refetch };
 }

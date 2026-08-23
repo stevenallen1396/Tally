@@ -1,45 +1,45 @@
 import * as Linking from "expo-linking";
 import { Stack, useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, Share, View } from "react-native";
 
 import { Button } from "@/components/Button";
+import { CurrencyPicker } from "@/components/CurrencyPicker";
 import { Screen } from "@/components/Screen";
 import { SmartBackButton } from "@/components/SmartBackButton";
 import { TextField } from "@/components/TextField";
 import { ThemedText } from "@/components/ThemedText";
 import { useProfile } from "@/hooks/useProfile";
-import { useSession } from "@/lib/SessionProvider";
 import { supabase } from "@/lib/supabase";
 import { useTheme } from "@/theme/ThemeProvider";
 
 export default function NewTally() {
   const { colors } = useTheme();
   const router = useRouter();
-  const { session } = useSession();
-  const { profile, loading: profileLoading } = useProfile();
-  const needsYourName = !profileLoading && (!profile || profile.display_name === "Guest");
-  const [yourName, setYourName] = useState("");
+  const { profile } = useProfile();
   const [partnerLabel, setPartnerLabel] = useState("");
+  const [currency, setCurrency] = useState("GBP");
   const [inviteLink, setInviteLink] = useState<string | null>(null);
   const [inviteCode, setInviteCode] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- seeding the picker from the account's default once it loads.
+    if (profile?.primary_currency) setCurrency(profile.primary_currency);
+  }, [profile]);
+
   const handleCreate = async () => {
-    if (!session) return;
     setError(null);
     setSubmitting(true);
 
-    const { data: tally, error: tallyError } = await supabase.rpc("create_tally_with_owner");
+    const { data: tally, error: tallyError } = await supabase.rpc("create_tally_with_owner", {
+      p_currency: currency,
+    });
     if (tallyError || !tally) {
       setSubmitting(false);
       setError(tallyError?.message ?? "Couldn't create the talli");
       return;
-    }
-
-    if (needsYourName && yourName.trim()) {
-      await supabase.from("profiles").upsert({ id: session.user.id, display_name: yourName.trim() });
     }
 
     const { data: invite, error: inviteError } = await supabase.rpc("create_invite", {
@@ -65,18 +65,14 @@ export default function NewTally() {
         }}
       />
       <View style={{ gap: 16 }}>
-        {needsYourName ? (
-          <>
-            <ThemedText preset="body" color="secondary">
-              What is your name?
-            </ThemedText>
-            <TextField label="Your name" value={yourName} onChangeText={setYourName} />
-          </>
-        ) : null}
         <ThemedText preset="body" color="secondary">
           Who&apos;s this talli with? This is just a label for you until they join.
         </ThemedText>
         <TextField label="Buddy's name" value={partnerLabel} onChangeText={setPartnerLabel} />
+        <ThemedText preset="body" color="secondary">
+          Currency
+        </ThemedText>
+        <CurrencyPicker value={currency} onChange={setCurrency} />
         {error ? (
           <ThemedText preset="body" color="debit">
             {error}
@@ -87,7 +83,7 @@ export default function NewTally() {
             <Button
               label={submitting ? "Creating…" : "Create talli & get invite link"}
               onPress={handleCreate}
-              disabled={submitting || !partnerLabel.trim() || (needsYourName && !yourName.trim())}
+              disabled={submitting || !partnerLabel.trim()}
             />
             <Pressable
               onPress={() => router.push("/(app)/tally/join")}

@@ -1,4 +1,4 @@
-import { formatAbsGBP } from "@tally/shared";
+import { formatAbs } from "@tally/shared";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { useTheme } from "@/theme/ThemeProvider";
@@ -12,6 +12,7 @@ export type TallyCardData = {
   partnerAvatarUrl: string | null;
   awaitingPartner: boolean;
   closed: boolean;
+  currency: string;
   balanceMinor: number; // positive = they owe you (credit), negative = you owe them (debit)
 };
 
@@ -55,7 +56,7 @@ export function TallyCard({ data, onPress }: { data: TallyCardData; onPress?: ()
       </View>
       <View style={[styles.balancePill, { backgroundColor: balanceBg }]}>
         <ThemedText preset="ledgerAmount" style={{ color: balanceColor }}>
-          {formatAbsGBP(data.balanceMinor)}
+          {formatAbs(data.balanceMinor, data.currency)}
         </ThemedText>
       </View>
     </Pressable>
