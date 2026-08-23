@@ -26,7 +26,10 @@ export default {
       : await query.eq("invite_code", code!.trim().toLowerCase().replace(/\s+/g, "-")).maybeSingle();
 
     if (inviteError || !invite) {
-      return Response.json({ error: code ? "Invalid invite code" : "Invalid invite link" }, { status: 404 });
+      return Response.json(
+        { error: code ? "That code isn't right you silly sausage, try again" : "Invalid invite link" },
+        { status: 404 },
+      );
     }
     if (new Date(invite.expires_at) < new Date()) {
       return Response.json({ error: "This invite link has expired" }, { status: 400 });
