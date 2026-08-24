@@ -11,6 +11,8 @@ export function useTallyPartner(tallyId: string) {
   const [awaitingPartner, setAwaitingPartner] = useState(false);
   const [closed, setClosed] = useState(false);
   const [currency, setCurrency] = useState("GBP");
+  const [inviteToken, setInviteToken] = useState<string | null>(null);
+  const [inviteCode, setInviteCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refetch = useCallback(async () => {
@@ -38,6 +40,8 @@ export function useTallyPartner(tallyId: string) {
       setClosed(true);
       setPartnerName(nickname ?? tally.archived_by_name ?? "your buddy");
       setAwaitingPartner(false);
+      setInviteToken(null);
+      setInviteCode(null);
       setLoading(false);
       return;
     }
@@ -56,9 +60,14 @@ export function useTallyPartner(tallyId: string) {
       const { data: label } = await supabase.rpc("get_pending_invite_label", {
         p_tally_id: tallyId,
       });
+      const { data: pendingInvite } = await supabase
+        .rpc("get_pending_invite", { p_tally_id: tallyId })
+        .maybeSingle();
       setPartnerId(null);
       setPartnerName(nickname ?? label ?? "your buddy");
       setAwaitingPartner(true);
+      setInviteToken(pendingInvite?.token ?? null);
+      setInviteCode(pendingInvite?.invite_code ?? null);
       setLoading(false);
       return;
     }
@@ -70,6 +79,8 @@ export function useTallyPartner(tallyId: string) {
       .maybeSingle();
     setPartnerId(otherMember.user_id);
     setAwaitingPartner(false);
+    setInviteToken(null);
+    setInviteCode(null);
     setPartnerName(nickname ?? profile?.display_name ?? "your buddy");
     setLoading(false);
   }, [tallyId, userId]);
@@ -79,5 +90,15 @@ export function useTallyPartner(tallyId: string) {
     refetch();
   }, [refetch]);
 
-  return { partnerId, partnerName, awaitingPartner, closed, currency, loading, refetch };
+  return {
+    partnerId,
+    partnerName,
+    awaitingPartner,
+    closed,
+    currency,
+    inviteToken,
+    inviteCode,
+    loading,
+    refetch,
+  };
 }

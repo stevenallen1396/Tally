@@ -394,6 +394,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      get_pending_invite: {
+        Args: { p_tally_id: string }
+        Returns: { token: string; invite_code: string | null }[]
+      }
       get_pending_invite_label: {
         Args: { p_tally_id: string }
         Returns: string

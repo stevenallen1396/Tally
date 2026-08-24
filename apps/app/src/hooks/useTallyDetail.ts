@@ -47,6 +47,8 @@ export function useTallyDetail(tallyId: string) {
     awaitingPartner,
     closed,
     currency,
+    inviteToken,
+    inviteCode,
     loading: partnerLoading,
     refetch: refetchPartner,
   } = useTallyPartner(tallyId);
@@ -100,6 +102,8 @@ export function useTallyDetail(tallyId: string) {
     awaitingPartner,
     closed,
     currency,
+    inviteToken,
+    inviteCode,
     entries,
     balanceMinor,
     hasPendingSettlement,

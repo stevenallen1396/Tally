@@ -1,8 +1,7 @@
-import { Ionicons } from "@expo/vector-icons";
 import { formatAbs } from "@tally/shared";
+import * as Linking from "expo-linking";
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
-import { FlatList, Pressable, TextInput, View } from "react-native";
+import { FlatList, Pressable, Share, View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { EntryRow } from "@/components/EntryRow";
@@ -10,40 +9,24 @@ import { Screen } from "@/components/Screen";
 import { SmartBackButton } from "@/components/SmartBackButton";
 import { ThemedText } from "@/components/ThemedText";
 import { useTallyDetail } from "@/hooks/useTallyDetail";
-import { supabase } from "@/lib/supabase";
 import { useTheme } from "@/theme/ThemeProvider";
 
 export default function TallyDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { colors, typography } = useTheme();
+  const { colors } = useTheme();
   const {
     partnerName,
     awaitingPartner,
     closed,
     currency,
+    inviteToken,
+    inviteCode,
     entries,
     balanceMinor,
     hasPendingSettlement,
     loading,
-    refetchPartner,
   } = useTallyDetail(id);
-  const [editingName, setEditingName] = useState(false);
-  const [nameDraft, setNameDraft] = useState("");
-  const [savingName, setSavingName] = useState(false);
-
-  const startEditingName = () => {
-    setNameDraft(partnerName);
-    setEditingName(true);
-  };
-
-  const saveName = async () => {
-    setEditingName(false);
-    setSavingName(true);
-    await supabase.rpc("set_buddy_nickname", { p_tally_id: id, p_nickname: nameDraft });
-    await refetchPartner();
-    setSavingName(false);
-  };
 
   const isEven = balanceMinor === 0;
   const isCredit = balanceMinor >= 0;
@@ -67,32 +50,9 @@ export default function TallyDetail() {
         }}
       />
       <View style={{ padding: 20, alignItems: "center", gap: 6 }}>
-        {editingName ? (
-          <TextInput
-            value={nameDraft}
-            onChangeText={setNameDraft}
-            onBlur={saveName}
-            onSubmitEditing={saveName}
-            autoFocus
-            selectTextOnFocus
-            style={[
-              typography.label.default,
-              { color: colors.textSecondary, textAlign: "center", minWidth: 120, padding: 0 },
-            ]}
-          />
-        ) : (
-          <Pressable
-            onPress={startEditingName}
-            style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
-          >
-            <ThemedText preset="label" color="secondary">
-              {savingName ? "Saving…" : partnerName || (loading ? "…" : "")}
-            </ThemedText>
-            {savingName || loading ? null : (
-              <Ionicons name="pencil" size={13} color={colors.textSecondary} />
-            )}
-          </Pressable>
-        )}
+        <ThemedText preset="label" color="secondary">
+          {partnerName || (loading ? "…" : "")}
+        </ThemedText>
         <ThemedText
           preset="ledgerBalance"
           color={closed || awaitingPartner || isEven ? "secondary" : isCredit ? "credit" : "debit"}
@@ -105,6 +65,40 @@ export default function TallyDetail() {
           {statusLabel}
         </ThemedText>
       </View>
+
+      {awaitingPartner && inviteToken ? (
+        <View
+          style={{
+            marginHorizontal: 20,
+            marginBottom: 20,
+            gap: 12,
+            padding: 16,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: colors.border,
+            backgroundColor: colors.surface,
+          }}
+        >
+          <ThemedText preset="bodyEmphasis">Share this link with {partnerName || "them"}</ThemedText>
+          <ThemedText preset="ledgerMeta" color="secondary">
+            {Linking.createURL(`/invite/${inviteToken}`)}
+          </ThemedText>
+          <Button
+            label="Share link"
+            onPress={() => Share.share({ message: Linking.createURL(`/invite/${inviteToken}`) })}
+          />
+          {inviteCode ? (
+            <View style={{ gap: 6, marginTop: 4 }}>
+              <ThemedText preset="ledgerMeta" color="secondary">
+                Or they can type in this code instead:
+              </ThemedText>
+              <ThemedText preset="headingSection" style={{ letterSpacing: 1 }}>
+                {inviteCode.toUpperCase()}
+              </ThemedText>
+            </View>
+          ) : null}
+        </View>
+      ) : null}
 
       <FlatList
         data={entries}
