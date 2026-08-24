@@ -30,7 +30,11 @@ export default function JoinTally() {
       return;
     }
 
-    router.replace(`/(app)/tally/${data.tally_id}`);
+    // Clears "Start or join a talli" (and this screen) out of the stack
+    // first — otherwise the back button from the talli lands you back in
+    // the join flow instead of the dashboard.
+    router.dismissTo("/(app)/(tabs)/dashboard");
+    router.push(`/(app)/tally/${data.tally_id}`);
   };
 
   return (
