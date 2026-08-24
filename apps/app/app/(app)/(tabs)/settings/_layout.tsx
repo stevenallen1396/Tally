@@ -10,7 +10,7 @@ export default function SettingsLayout() {
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="profile" options={{ title: "Profile" }} />
       <Stack.Screen name="notifications" options={{ title: "Notification settings" }} />
-      <Stack.Screen name="currencies" options={{ title: "Talli currencies" }} />
+      <Stack.Screen name="currencies" options={{ title: "Tallies" }} />
       <Stack.Screen name="upgrade-account" options={{ headerShown: false }} />
       <Stack.Screen name="delete-account" options={{ title: "Delete account" }} />
     </Stack>
