@@ -99,14 +99,16 @@ export default function SettingsIndex() {
           </ThemedText>
         </Pressable>
       )}
-      <Pressable
-        onPress={() => router.push("/(app)/(tabs)/settings/delete-account")}
-        style={{ alignSelf: "center", paddingVertical: 4 }}
-      >
-        <ThemedText preset="body" color="debit" style={{ textDecorationLine: "underline" }}>
-          Delete account
-        </ThemedText>
-      </Pressable>
+      {isGuest ? null : (
+        <Pressable
+          onPress={() => router.push("/(app)/(tabs)/settings/delete-account")}
+          style={{ alignSelf: "center", paddingVertical: 4 }}
+        >
+          <ThemedText preset="body" color="debit" style={{ textDecorationLine: "underline" }}>
+            Delete account
+          </ThemedText>
+        </Pressable>
+      )}
       <View style={{ flex: 1 }} />
       <ThemedText
         preset="ledgerMeta"
