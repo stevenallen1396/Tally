@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { formatAbs } from "@tally/shared";
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
@@ -80,10 +81,16 @@ export default function TallyDetail() {
             ]}
           />
         ) : (
-          <Pressable onLongPress={startEditingName}>
+          <Pressable
+            onPress={startEditingName}
+            style={{ flexDirection: "row", alignItems: "center", gap: 6 }}
+          >
             <ThemedText preset="label" color="secondary">
               {savingName ? "Saving…" : partnerName || (loading ? "…" : "")}
             </ThemedText>
+            {savingName || loading ? null : (
+              <Ionicons name="pencil" size={13} color={colors.textSecondary} />
+            )}
           </Pressable>
         )}
         <ThemedText
