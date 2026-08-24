@@ -1,6 +1,8 @@
 import { formatAbs } from "@tally/shared";
+import * as Clipboard from "expo-clipboard";
 import * as Linking from "expo-linking";
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
+import { useState } from "react";
 import { FlatList, Pressable, Share, View } from "react-native";
 
 import { Button } from "@/components/Button";
@@ -27,6 +29,14 @@ export default function TallyDetail() {
     hasPendingSettlement,
     loading,
   } = useTallyDetail(id);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = async () => {
+    if (!inviteToken) return;
+    await Clipboard.setStringAsync(Linking.createURL(`/invite/${inviteToken}`));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const isEven = balanceMinor === 0;
   const isCredit = balanceMinor >= 0;
@@ -83,10 +93,21 @@ export default function TallyDetail() {
           <ThemedText preset="ledgerMeta" color="secondary">
             {Linking.createURL(`/invite/${inviteToken}`)}
           </ThemedText>
-          <Button
-            label="Share link"
-            onPress={() => Share.share({ message: Linking.createURL(`/invite/${inviteToken}`) })}
-          />
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            <View style={{ flex: 1 }}>
+              <Button
+                label={copied ? "Copied!" : "Copy link"}
+                variant="secondary"
+                onPress={handleCopyLink}
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Button
+                label="Share link"
+                onPress={() => Share.share({ message: Linking.createURL(`/invite/${inviteToken}`) })}
+              />
+            </View>
+          </View>
           {inviteCode ? (
             <View style={{ gap: 6, marginTop: 4 }}>
               <ThemedText preset="ledgerMeta" color="secondary">

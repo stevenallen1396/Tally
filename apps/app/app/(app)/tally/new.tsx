@@ -1,3 +1,4 @@
+import * as Clipboard from "expo-clipboard";
 import * as Linking from "expo-linking";
 import { Stack, useRouter } from "expo-router";
 import { useState } from "react";
@@ -21,6 +22,14 @@ export default function NewTally() {
   const [inviteCode, setInviteCode] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = async () => {
+    if (!inviteLink) return;
+    await Clipboard.setStringAsync(inviteLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleCreate = async () => {
     setError(null);
@@ -103,7 +112,18 @@ export default function NewTally() {
           <ThemedText preset="ledgerMeta" color="secondary">
             {inviteLink}
           </ThemedText>
-          <Button label="Share link" onPress={() => Share.share({ message: inviteLink })} />
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            <View style={{ flex: 1 }}>
+              <Button
+                label={copied ? "Copied!" : "Copy link"}
+                variant="secondary"
+                onPress={handleCopyLink}
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Button label="Share link" onPress={() => Share.share({ message: inviteLink })} />
+            </View>
+          </View>
           {inviteCode ? (
             <View style={{ gap: 6, marginTop: 4 }}>
               <ThemedText preset="ledgerMeta" color="secondary">
