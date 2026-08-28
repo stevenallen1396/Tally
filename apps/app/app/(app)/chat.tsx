@@ -177,7 +177,7 @@ export default function Chat() {
       <Stack.Screen
         options={{
           headerShown: true,
-          title: "Ask Talli",
+          title: "Ask Ned",
           headerLeft: () => <SmartBackButton fallbackHref="/(app)/(tabs)/dashboard" />,
         }}
       />

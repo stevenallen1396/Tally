@@ -16,7 +16,7 @@ import { useTheme } from "@/theme/ThemeProvider";
 
 type Direction = "i_owe" | "they_owe";
 
-// AI-assisted entry logging lives only in the dashboard's Ask Talli AI chat
+// AI-assisted entry logging lives only in the dashboard's Ask Ned chat
 // — this screen is manual entry only.
 export default function AddEntry() {
   const { id } = useLocalSearchParams<{ id: string }>();

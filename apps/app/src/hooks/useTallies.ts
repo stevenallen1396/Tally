@@ -93,6 +93,23 @@ async function fetchTallies(userId: string): Promise<TallyCardData[]> {
   });
 }
 
+// fetchTallies throws on any query error, and a restored session can briefly
+// hold a stale access token while supabase-js refreshes it in the background
+// (most visible on Safari, but not Safari-specific — see useProfile's
+// fetchProfileWithRetry for the same failure mode). Without a retry, that
+// transient auth error was indistinguishable from "confirmed zero tallies"
+// and sent people with existing tallies to the dashboard's empty state.
+async function fetchTalliesWithRetry(userId: string): Promise<TallyCardData[]> {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      return await fetchTallies(userId);
+    } catch {
+      await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
+    }
+  }
+  return [];
+}
+
 export function useTallies() {
   const { session } = useSession();
   const userId = session?.user.id;
@@ -105,7 +122,7 @@ export function useTallies() {
 
   const refetch = useCallback(() => {
     if (!userId) return;
-    fetchTallies(userId)
+    fetchTalliesWithRetry(userId)
       .then(setTallies)
       .finally(() => setLoading(false));
   }, [userId]);

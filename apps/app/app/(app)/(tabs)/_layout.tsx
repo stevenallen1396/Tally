@@ -3,6 +3,8 @@ import { Tabs, type BottomTabBarProps } from "expo-router/js-tabs";
 import { Platform, Pressable, View, useWindowDimensions, type StyleProp, type ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { BirdhouseIcon } from "@/components/BirdhouseIcon";
+import { TallyMarkIcon } from "@/components/TallyMarkIcon";
 import { useTheme } from "@/theme/ThemeProvider";
 
 const PILL_WIDTH = 240;
@@ -79,14 +81,14 @@ export default function TabsLayout() {
         name="dashboard/index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => <Ionicons name="home-outline" size={24} color={color} />,
+          tabBarIcon: ({ color }) => <BirdhouseIcon size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="notifications/index"
         options={{
           title: "Activity",
-          tabBarIcon: ({ color }) => <Ionicons name="list-outline" size={24} color={color} />,
+          tabBarIcon: ({ color }) => <TallyMarkIcon size={24} color={color} />,
         }}
       />
       <Tabs.Screen

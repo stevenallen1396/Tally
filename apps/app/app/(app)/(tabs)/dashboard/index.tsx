@@ -68,7 +68,7 @@ export default function Dashboard() {
             <Ionicons name="sparkles" size={26} color="#FFFDF8" />
           </Pressable>
           <ThemedText preset="ledgerMeta" color="secondary">
-            Ask Talli AI
+            Ask Ned
           </ThemedText>
         </View>
         <Link href="/(app)/tally/new" asChild>
