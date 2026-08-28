@@ -50,6 +50,7 @@ export default function RootLayout() {
     Manrope_800ExtraBold,
     IBMPlexMono_400Regular,
     IBMPlexMono_700Bold,
+    Genty: require("../assets/fonts/Genty.ttf"),
   });
 
   if (!fontsLoaded) {

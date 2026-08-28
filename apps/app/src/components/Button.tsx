@@ -15,7 +15,7 @@ export function Button({ label, variant = "primary", style, ...rest }: ButtonPro
   const { colors } = useTheme();
 
   const backgroundColor =
-    variant === "primary" ? colors.accentPrimary : variant === "secondary" ? colors.surface : "transparent";
+    variant === "primary" ? colors.ctaPrimary : variant === "secondary" ? colors.surface : "transparent";
   const textColor = variant === "primary" ? "#FFFDF8" : colors.textPrimary;
   const borderColor = variant === "secondary" ? colors.border : "transparent";
 

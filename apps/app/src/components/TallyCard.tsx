@@ -50,9 +50,19 @@ export function TallyCard({ data, onPress }: { data: TallyCardData; onPress?: ()
         <ThemedText preset="bodyEmphasis" style={{ fontSize: 19, lineHeight: 24 }}>
           {data.partnerName}
         </ThemedText>
-        <ThemedText preset="ledgerMeta" color="secondary">
-          {statusLabel}
-        </ThemedText>
+        {data.awaitingPartner ? (
+          <View
+            style={[styles.pendingBadge, { backgroundColor: colors.accentTertiary }]}
+          >
+            <ThemedText preset="ledgerMeta" style={{ color: "#FFFDF8" }}>
+              {statusLabel}
+            </ThemedText>
+          </View>
+        ) : (
+          <ThemedText preset="ledgerMeta" color="secondary">
+            {statusLabel}
+          </ThemedText>
+        )}
       </View>
       <View style={[styles.balancePill, { backgroundColor: balanceBg }]}>
         <ThemedText preset="ledgerAmount" style={{ color: balanceColor }}>
@@ -76,5 +86,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 6,
     paddingHorizontal: 10,
+  },
+  pendingBadge: {
+    alignSelf: "flex-start",
+    borderRadius: 6,
+    paddingVertical: 2,
+    paddingHorizontal: 6,
   },
 });

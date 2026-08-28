@@ -12,6 +12,7 @@ export const tokens = {
     accentPrimary: "#5D5FEF",
     accentSecondary: "#EBB035",
     accentTertiary: "#EB5EA2",
+    ctaPrimary: "#D35230",
   },
   dark: {
     background: "#1E1C19",
@@ -26,6 +27,7 @@ export const tokens = {
     accentPrimary: "#7B7DF5",
     accentSecondary: "#EBB035",
     accentTertiary: "#F080B3",
+    ctaPrimary: "#E37A5A",
   },
 } as const;
 

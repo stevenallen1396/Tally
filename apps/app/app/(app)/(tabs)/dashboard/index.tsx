@@ -1,8 +1,10 @@
-import { Ionicons } from "@expo/vector-icons";
 import { Link, useRouter } from "expo-router";
-import { FlatList, Pressable, View } from "react-native";
+import { useState } from "react";
+import { Animated, FlatList, Pressable, View } from "react-native";
 
+import { ActivityTicker } from "@/components/ActivityTicker";
 import { Button } from "@/components/Button";
+import { NedAiIcon } from "@/components/NedAiIcon";
 import { Screen } from "@/components/Screen";
 import { TallyCard } from "@/components/TallyCard";
 import { ThemedText } from "@/components/ThemedText";
@@ -14,66 +16,85 @@ export default function Dashboard() {
   const router = useRouter();
   const { colors } = useTheme();
   const { tallies, loading, refetch } = useTallies();
+  const [pressScale] = useState(() => new Animated.Value(1));
+
+  const onAiPressIn = () => Animated.spring(pressScale, { toValue: 0.92, useNativeDriver: true, speed: 40 }).start();
+  const onAiPressOut = () => Animated.spring(pressScale, { toValue: 1, useNativeDriver: true, speed: 20 }).start();
 
   return (
     <Screen style={{ padding: 0 }}>
-      <View style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16, gap: 4 }}>
-        <ThemedText preset="headingScreen">Your tallis</ThemedText>
-      </View>
-      <FlatList
-        data={tallies}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 150, gap: 12 }}
-        ListEmptyComponent={
-          loading ? null : (
-            <View style={{ paddingTop: 60, alignItems: "center", gap: 8 }}>
-              <ThemedText preset="body" color="secondary" style={{ textAlign: "center" }}>
-                No tallis yet. Start one with a friend to keep track of what you owe each other.
-              </ThemedText>
+      <View style={{ flex: 1 }}>
+        <FlatList
+          data={tallies}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 24, gap: 12 }}
+          ListHeaderComponent={
+            <View style={{ paddingBottom: 16, gap: 4 }}>
+              <ThemedText preset="headingWordmark">Talli</ThemedText>
+              <ThemedText preset="headingScreen">Your tallis</ThemedText>
             </View>
-          )
-        }
-        renderItem={({ item }) => (
-          <TallyCard
-            data={item}
-            onPress={() => {
-              if (item.closed) {
-                supabase.rpc("leave_tally", { p_tally_id: item.id }).then(refetch);
-              } else {
-                router.push(`/(app)/tally/${item.id}`);
-              }
-            }}
-          />
-        )}
-      />
-      <View style={{ position: "absolute", left: 20, right: 20, bottom: 84, gap: 12 }}>
-        <View style={{ alignSelf: "center", alignItems: "center", gap: 6 }}>
-          <Pressable
-            onPress={() => router.push("/(app)/chat")}
-            style={({ pressed }) => ({
-              width: 60,
-              height: 60,
-              borderRadius: 30,
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: colors.accentTertiary,
-              opacity: pressed ? 0.85 : 1,
-              shadowColor: "#000",
-              shadowOpacity: 0.15,
-              shadowRadius: 8,
-              shadowOffset: { width: 0, height: 4 },
-              elevation: 4,
-            })}
-          >
-            <Ionicons name="sparkles" size={26} color="#FFFDF8" />
-          </Pressable>
-          <ThemedText preset="ledgerMeta" color="secondary">
-            Ask Ned
-          </ThemedText>
-        </View>
-        <Link href="/(app)/tally/new" asChild>
-          <Button label="Start or join a talli" />
-        </Link>
+          }
+          ListEmptyComponent={
+            loading ? null : (
+              <View style={{ paddingTop: 60, alignItems: "center", gap: 8 }}>
+                <ThemedText preset="body" color="secondary" style={{ textAlign: "center" }}>
+                  No tallis yet. Start one with a friend to keep track of what you owe each other.
+                </ThemedText>
+              </View>
+            )
+          }
+          renderItem={({ item }) => (
+            <TallyCard
+              data={item}
+              onPress={() => {
+                if (item.closed) {
+                  supabase.rpc("leave_tally", { p_tally_id: item.id }).then(refetch);
+                } else {
+                  router.push(`/(app)/tally/${item.id}`);
+                }
+              }}
+            />
+          )}
+          ListFooterComponent={
+            <View style={{ gap: 12, marginTop: 12 }}>
+              <Link href="/(app)/tally/new" asChild>
+                <Button label="Start or join a talli" />
+              </Link>
+              <View style={{ alignSelf: "center", alignItems: "center", gap: 6 }}>
+                <Animated.View style={{ transform: [{ scale: pressScale }] }}>
+                  <Pressable
+                    onPress={() => router.push("/(app)/chat")}
+                    onPressIn={onAiPressIn}
+                    onPressOut={onAiPressOut}
+                    style={{
+                      width: 64,
+                      height: 64,
+                      borderRadius: 32,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: colors.accentPrimary,
+                      borderTopWidth: 2,
+                      borderTopColor: "rgba(255,255,255,0.35)",
+                      shadowColor: "#000",
+                      shadowOpacity: 0.25,
+                      shadowRadius: 14,
+                      shadowOffset: { width: 0, height: 8 },
+                      elevation: 6,
+                    }}
+                  >
+                    <NedAiIcon size={40} />
+                  </Pressable>
+                </Animated.View>
+                <ThemedText preset="ledgerMeta" color="secondary">
+                  Ask Ned
+                </ThemedText>
+              </View>
+            </View>
+          }
+        />
+      </View>
+      <View style={{ marginBottom: 84 }}>
+        <ActivityTicker />
       </View>
     </Screen>
   );
