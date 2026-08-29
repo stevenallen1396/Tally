@@ -28,7 +28,7 @@ export default function Dashboard() {
         <FlatList
           data={tallies}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 24, gap: 12 }}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 240, gap: 12 }}
           ListHeaderComponent={
             <View style={{ paddingBottom: 16, gap: 4 }}>
               <ThemedText
@@ -60,28 +60,27 @@ export default function Dashboard() {
               }}
             />
           )}
-          ListFooterComponent={
-            <View style={{ marginTop: 12, gap: 4 }}>
-              <Link href="/(app)/tally/new" asChild>
-                <Button label="Start a talli" />
-              </Link>
-              <Pressable
-                onPress={() => router.push("/(app)/tally/join")}
-                style={{ paddingVertical: 4, alignItems: "center" }}
-              >
-                <ThemedText preset="body" style={{ color: colors.accentPrimary }}>
-                  Have a code? Join
-                </ThemedText>
-              </Pressable>
-            </View>
-          }
         />
       </View>
       {/* Bottom stack, lowest to highest: ticker (flush at the screen edge)
           → nav bar (see _layout.tsx, offset to clear the ticker) → AI
-          button (offset to clear the nav bar). Each gap is deliberate —
-          keep them in sync if any of the three heights change. */}
+          button (offset to clear the nav bar) → CTA section (fixed 30px
+          above the AI button, not scrolling with the list). Each gap is
+          deliberate — keep them in sync if any of the three heights change. */}
       <View>
+        <View style={{ position: "absolute", left: 20, right: 20, bottom: 205, gap: 4 }}>
+          <Link href="/(app)/tally/new" asChild>
+            <Button label="Start a talli" />
+          </Link>
+          <Pressable
+            onPress={() => router.push("/(app)/tally/join")}
+            style={{ paddingVertical: 4, alignItems: "center" }}
+          >
+            <ThemedText preset="body" style={{ color: colors.accentPrimary }}>
+              Have a code? Join
+            </ThemedText>
+          </Pressable>
+        </View>
         <Animated.View
           style={{
             position: "absolute",

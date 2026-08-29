@@ -1,3 +1,4 @@
+import type { PostgrestError } from "@supabase/supabase-js";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
@@ -11,6 +12,29 @@ import { useSession } from "@/lib/SessionProvider";
 import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 
+// A freshly-created anonymous session can still be settling (token not yet
+// fully attached to the client) when this fires, so the very first write
+// can race it — the same failure mode useProfile's fetchProfileWithRetry
+// already works around on the read side, but this write path never had the
+// equivalent guard. Without it, the upsert fails RLS ("new row violates
+// row-level security policy") on a mismatched auth.uid(), the profile never
+// actually gets saved, and the user is stuck re-entering their name on
+// every load. Retry with backoff before giving up.
+async function upsertProfileWithRetry(payload: {
+  id: string;
+  display_name: string;
+  primary_currency: string;
+}): Promise<PostgrestError | null> {
+  let lastError: PostgrestError | null = null;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const { error } = await supabase.from("profiles").upsert(payload);
+    if (!error) return null;
+    lastError = error;
+    await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
+  }
+  return lastError;
+}
+
 export default function Onboarding() {
   const router = useRouter();
   const { session } = useSession();
@@ -23,17 +47,20 @@ export default function Onboarding() {
     if (!session) return;
     setError(null);
     setSubmitting(true);
-    const { error: upsertError } = await supabase
-      .from("profiles")
-      .upsert({ id: session.user.id, display_name: name.trim(), primary_currency: currency });
+    const upsertError = await upsertProfileWithRetry({
+      id: session.user.id,
+      display_name: name.trim(),
+      primary_currency: currency,
+    });
     setSubmitting(false);
 
     if (upsertError) {
-      setError(upsertError.message);
+      console.error("Failed to save profile during onboarding:", upsertError);
+      setError("Something went wrong saving your details — please try again.");
       return;
     }
     useOnboardingStore.getState().markCompleted();
-    router.replace("/(app)/tally/new");
+    router.replace("/(app)/(tabs)/dashboard");
   };
 
   return (
