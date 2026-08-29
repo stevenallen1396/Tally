@@ -24,8 +24,16 @@ function RootStack() {
       <Head>
         <title>Talli</title>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        {/* apple-mobile-web-app-capable alone (no manifest scope) only kept
+            the exact URL last "Added to Home Screen" chrome-less — every
+            other route fell back to showing Safari's bar. The manifest's
+            scope fixes that app-wide; the meta tags stay for older-iOS
+            fallback. */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-title" content="Talli" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="theme-color" content="#2B2926" />
+        <link rel="manifest" href="/manifest.json" />
       </Head>
       <StatusBar style={mode === "dark" ? "light" : "dark"} />
       <Stack
