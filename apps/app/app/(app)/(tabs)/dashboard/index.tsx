@@ -61,13 +61,13 @@ export default function Dashboard() {
           )}
         />
       </View>
-      {/* Bottom stack, lowest to highest: nav bar (see _layout.tsx) → AI
-          button (offset to clear the nav bar) → CTA section (fixed 30px
-          above the AI button, not scrolling with the list). Activity ticker
+      {/* Bottom stack, lowest to highest: nav bar (see _layout.tsx) → CTA
+          section (offset to clear the nav bar) → AI button (offset to clear
+          the CTA section, not scrolling with the list). Activity ticker
           temporarily removed — offsets here assume it's gone; re-add its
           40px height + 12px gap to each if it comes back. */}
       <View>
-        <View style={{ position: "absolute", left: 20, right: 20, bottom: 169, gap: 4 }}>
+        <View style={{ position: "absolute", left: 20, right: 20, bottom: 69, gap: 4 }}>
           <Link href="/(app)/tally/new" asChild>
             <Button label="Start a talli" />
           </Link>
@@ -84,7 +84,7 @@ export default function Dashboard() {
           style={{
             position: "absolute",
             right: 20,
-            bottom: 69,
+            bottom: 169,
             zIndex: 1,
             transform: [{ scale: pressScale }],
           }}
