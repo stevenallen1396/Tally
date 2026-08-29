@@ -2,7 +2,6 @@ import { Link, useRouter } from "expo-router";
 import { useState } from "react";
 import { Animated, FlatList, Pressable, View } from "react-native";
 
-import { ActivityTicker } from "@/components/ActivityTicker";
 import { Button } from "@/components/Button";
 import { NedAiIcon } from "@/components/NedAiIcon";
 import { Screen } from "@/components/Screen";
@@ -28,7 +27,7 @@ export default function Dashboard() {
         <FlatList
           data={tallies}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 240, gap: 12 }}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 190, gap: 12 }}
           ListHeaderComponent={
             <View style={{ paddingBottom: 16, gap: 4 }}>
               <ThemedText
@@ -62,13 +61,13 @@ export default function Dashboard() {
           )}
         />
       </View>
-      {/* Bottom stack, lowest to highest: ticker (flush at the screen edge)
-          → nav bar (see _layout.tsx, offset to clear the ticker) → AI
+      {/* Bottom stack, lowest to highest: nav bar (see _layout.tsx) → AI
           button (offset to clear the nav bar) → CTA section (fixed 30px
-          above the AI button, not scrolling with the list). Each gap is
-          deliberate — keep them in sync if any of the three heights change. */}
+          above the AI button, not scrolling with the list). Activity ticker
+          temporarily removed — offsets here assume it's gone; re-add its
+          40px height + 12px gap to each if it comes back. */}
       <View>
-        <View style={{ position: "absolute", left: 20, right: 20, bottom: 205, gap: 4 }}>
+        <View style={{ position: "absolute", left: 20, right: 20, bottom: 169, gap: 4 }}>
           <Link href="/(app)/tally/new" asChild>
             <Button label="Start a talli" />
           </Link>
@@ -85,7 +84,7 @@ export default function Dashboard() {
           style={{
             position: "absolute",
             right: 20,
-            bottom: 105,
+            bottom: 69,
             zIndex: 1,
             transform: [{ scale: pressScale }],
           }}
@@ -113,7 +112,6 @@ export default function Dashboard() {
             <NedAiIcon size={44} />
           </Pressable>
         </Animated.View>
-        <ActivityTicker />
       </View>
     </Screen>
   );

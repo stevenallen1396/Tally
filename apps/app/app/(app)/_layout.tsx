@@ -15,7 +15,7 @@ import { useStackHeaderOptions } from "@/theme/stackHeaderOptions";
 // requires an account; creating one is an optional prompt from Settings.
 export default function AppLayout() {
   const { session, loading } = useSession();
-  const { profile, loading: profileLoading } = useProfile();
+  const { profile, loading: profileLoading, fetchError } = useProfile();
   const completedThisSession = useOnboardingStore((state) => state.completedThisSession);
   const pathname = usePathname();
   const headerOptions = useStackHeaderOptions();
@@ -40,7 +40,13 @@ export default function AppLayout() {
   // currency step before anything else. Invite-link joiners already picked
   // a name inline on that screen, so this never re-triggers for them —
   // they land with a real display_name already set.
-  const needsOnboarding = !completedThisSession && (!profile || profile.display_name === "Guest");
+  //
+  // Gated on !fetchError: if every read attempt errored, we genuinely don't
+  // know whether a profile exists — that's not the same as confirming there
+  // isn't one, and treating it as "no profile" is exactly what sent already
+  // set-up people through onboarding again (the same failure mode fixed for
+  // the profile *write* in onboarding.tsx, just on the read side here).
+  const needsOnboarding = !completedThisSession && !fetchError && (!profile || profile.display_name === "Guest");
   if (needsOnboarding && pathname !== "/onboarding") {
     return <Redirect href="/(app)/onboarding" />;
   }

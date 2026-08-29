@@ -24,9 +24,7 @@ function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     position: "absolute",
     left: (screenWidth - BAR_WIDTH) / 2,
     width: BAR_WIDTH,
-    // Cleared above the dashboard's activity ticker (40px strip + 12px gap)
-    // — see the bottom-stack comment in dashboard/index.tsx, keep in sync.
-    bottom: insets.bottom + 52,
+    bottom: insets.bottom + 16,
     flexDirection: "row",
   };
 
