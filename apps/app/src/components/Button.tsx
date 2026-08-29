@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, type PressableProps } from "react-native";
 
+import { tokens } from "@/theme/tokens";
 import { useTheme } from "@/theme/ThemeProvider";
 
 import { ThemedText } from "./ThemedText";
@@ -11,12 +12,16 @@ type ButtonProps = PressableProps & {
   variant?: ButtonVariant;
 };
 
+// Canvas Cream, fixed regardless of theme — same pairing as the nav bar and
+// ticker's fixed Warm Charcoal/Canvas Cream (see app/(app)/(tabs)/_layout.tsx).
+const PRIMARY_TEXT_COLOR = tokens.light.background;
+
 export function Button({ label, variant = "primary", style, ...rest }: ButtonProps) {
   const { colors } = useTheme();
 
   const backgroundColor =
     variant === "primary" ? colors.ctaPrimary : variant === "secondary" ? colors.surface : "transparent";
-  const textColor = variant === "primary" ? "#FFFDF8" : colors.textPrimary;
+  const textColor = variant === "primary" ? PRIMARY_TEXT_COLOR : colors.textPrimary;
   const borderColor = variant === "secondary" ? colors.border : "transparent";
 
   return (

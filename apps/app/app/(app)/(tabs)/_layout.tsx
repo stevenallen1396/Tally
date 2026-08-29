@@ -1,14 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs, type BottomTabBarProps } from "expo-router/js-tabs";
-import { Platform, Pressable, View, useWindowDimensions, type StyleProp, type ViewStyle } from "react-native";
+import { Pressable, Text, View, useWindowDimensions, type StyleProp, type ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { BirdhouseIcon } from "@/components/BirdhouseIcon";
 import { TallyMarkIcon } from "@/components/TallyMarkIcon";
+import { fontFamilies } from "@/theme/typography";
 import { useTheme } from "@/theme/ThemeProvider";
 
-const PILL_WIDTH = 240;
-const PILL_HEIGHT = 52;
+const BAR_WIDTH = 240;
 
 // A fully custom tab bar instead of the default one: React Navigation's
 // built-in tab bar reserves vertical space for a label even with
@@ -20,29 +20,18 @@ function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
 
-  const pillStyle: StyleProp<ViewStyle> = {
+  const barStyle: StyleProp<ViewStyle> = {
     position: "absolute",
-    left: (screenWidth - PILL_WIDTH) / 2,
-    width: PILL_WIDTH,
-    bottom: insets.bottom + 16,
-    height: PILL_HEIGHT,
-    borderRadius: PILL_HEIGHT / 2,
-    backgroundColor: colors.surface,
+    left: (screenWidth - BAR_WIDTH) / 2,
+    width: BAR_WIDTH,
+    // Cleared above the dashboard's activity ticker (40px strip + 12px gap)
+    // — see the bottom-stack comment in dashboard/index.tsx, keep in sync.
+    bottom: insets.bottom + 52,
     flexDirection: "row",
-    ...Platform.select({
-      web: { boxShadow: "0 8px 24px rgba(0, 0, 0, 0.12)" },
-      default: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.12,
-        shadowRadius: 12,
-        elevation: 8,
-      },
-    }),
   };
 
   return (
-    <View style={pillStyle}>
+    <View style={barStyle}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const isFocused = state.index === index;
@@ -64,9 +53,26 @@ function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                 navigation.navigate(route.name);
               }
             }}
-            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+            style={{ flex: 1, justifyContent: "center", alignItems: "center", gap: 4 }}
           >
-            {options.tabBarIcon?.({ focused: isFocused, color, size: 24 })}
+            {/* Fixed 24x24 box around every icon — Ionicons (a font glyph)
+                and the custom SVG icons have different internal vertical
+                metrics at the same size prop, which threw off the visual
+                gap to the label below. Forcing an identical centered box
+                makes that gap consistent across all three tabs. */}
+            <View style={{ width: 24, height: 24, alignItems: "center", justifyContent: "center" }}>
+              {options.tabBarIcon?.({ focused: isFocused, color, size: 24 })}
+            </View>
+            <Text
+              style={{
+                fontFamily: fontFamilies.ibmPlexMonoRegular,
+                fontSize: 10,
+                letterSpacing: 0.5,
+                color,
+              }}
+            >
+              {options.title?.toUpperCase()}
+            </Text>
           </Pressable>
         );
       })}

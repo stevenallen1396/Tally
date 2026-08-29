@@ -10,6 +10,7 @@ import { TallyCard } from "@/components/TallyCard";
 import { ThemedText } from "@/components/ThemedText";
 import { useTallies } from "@/hooks/useTallies";
 import { supabase } from "@/lib/supabase";
+import { fontFamilies } from "@/theme/typography";
 import { useTheme } from "@/theme/ThemeProvider";
 
 export default function Dashboard() {
@@ -30,8 +31,12 @@ export default function Dashboard() {
           contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 24, gap: 12 }}
           ListHeaderComponent={
             <View style={{ paddingBottom: 16, gap: 4 }}>
-              <ThemedText preset="headingWordmark">Talli</ThemedText>
-              <ThemedText preset="headingScreen">Your tallis</ThemedText>
+              <ThemedText
+                preset="headingScreen"
+                style={{ fontFamily: fontFamilies.genty, fontSize: 40, lineHeight: 50, color: colors.debit }}
+              >
+                Tallis
+              </ThemedText>
             </View>
           }
           ListEmptyComponent={
@@ -56,44 +61,59 @@ export default function Dashboard() {
             />
           )}
           ListFooterComponent={
-            <View style={{ gap: 12, marginTop: 12 }}>
+            <View style={{ marginTop: 12, gap: 4 }}>
               <Link href="/(app)/tally/new" asChild>
-                <Button label="Start or join a talli" />
+                <Button label="Start a talli" />
               </Link>
-              <View style={{ alignSelf: "center", alignItems: "center", gap: 6 }}>
-                <Animated.View style={{ transform: [{ scale: pressScale }] }}>
-                  <Pressable
-                    onPress={() => router.push("/(app)/chat")}
-                    onPressIn={onAiPressIn}
-                    onPressOut={onAiPressOut}
-                    style={{
-                      width: 64,
-                      height: 64,
-                      borderRadius: 32,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      backgroundColor: colors.accentPrimary,
-                      borderTopWidth: 2,
-                      borderTopColor: "rgba(255,255,255,0.35)",
-                      shadowColor: "#000",
-                      shadowOpacity: 0.25,
-                      shadowRadius: 14,
-                      shadowOffset: { width: 0, height: 8 },
-                      elevation: 6,
-                    }}
-                  >
-                    <NedAiIcon size={40} />
-                  </Pressable>
-                </Animated.View>
-                <ThemedText preset="ledgerMeta" color="secondary">
-                  Ask Ned
+              <Pressable
+                onPress={() => router.push("/(app)/tally/join")}
+                style={{ paddingVertical: 4, alignItems: "center" }}
+              >
+                <ThemedText preset="body" style={{ color: colors.accentPrimary }}>
+                  Have a code? Join
                 </ThemedText>
-              </View>
+              </Pressable>
             </View>
           }
         />
       </View>
-      <View style={{ marginBottom: 84 }}>
+      {/* Bottom stack, lowest to highest: ticker (flush at the screen edge)
+          → nav bar (see _layout.tsx, offset to clear the ticker) → AI
+          button (offset to clear the nav bar). Each gap is deliberate —
+          keep them in sync if any of the three heights change. */}
+      <View>
+        <Animated.View
+          style={{
+            position: "absolute",
+            right: 20,
+            bottom: 105,
+            zIndex: 1,
+            transform: [{ scale: pressScale }],
+          }}
+        >
+          <Pressable
+            onPress={() => router.push("/(app)/chat")}
+            onPressIn={onAiPressIn}
+            onPressOut={onAiPressOut}
+            style={{
+              width: 70,
+              height: 70,
+              borderRadius: 35,
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: colors.accentSecondary,
+              borderTopWidth: 2,
+              borderTopColor: "rgba(255,255,255,0.35)",
+              shadowColor: "#000",
+              shadowOpacity: 0.25,
+              shadowRadius: 14,
+              shadowOffset: { width: 0, height: 8 },
+              elevation: 6,
+            }}
+          >
+            <NedAiIcon size={44} />
+          </Pressable>
+        </Animated.View>
         <ActivityTicker />
       </View>
     </Screen>

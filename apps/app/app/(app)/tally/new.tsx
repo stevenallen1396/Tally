@@ -1,8 +1,8 @@
 import * as Clipboard from "expo-clipboard";
 import * as Linking from "expo-linking";
-import { Stack, useRouter } from "expo-router";
+import { Stack } from "expo-router";
 import { useState } from "react";
-import { Pressable, Share, View } from "react-native";
+import { Share, View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
@@ -15,7 +15,6 @@ import { useTheme } from "@/theme/ThemeProvider";
 
 export default function NewTally() {
   const { colors } = useTheme();
-  const router = useRouter();
   const { profile } = useProfile();
   const [partnerLabel, setPartnerLabel] = useState("");
   const [inviteLink, setInviteLink] = useState<string | null>(null);
@@ -78,21 +77,11 @@ export default function NewTally() {
           </ThemedText>
         ) : null}
         {inviteLink ? null : (
-          <>
-            <Button
-              label={submitting ? "Creating…" : "Create talli & get invite link"}
-              onPress={handleCreate}
-              disabled={submitting || !partnerLabel.trim()}
-            />
-            <Pressable
-              onPress={() => router.push("/(app)/tally/join")}
-              style={{ paddingVertical: 4, alignItems: "center" }}
-            >
-              <ThemedText preset="body" color="secondary" style={{ textDecorationLine: "underline" }}>
-                Have a code instead? Join a talli
-              </ThemedText>
-            </Pressable>
-          </>
+          <Button
+            label={submitting ? "Creating…" : "Create talli & get invite link"}
+            onPress={handleCreate}
+            disabled={submitting || !partnerLabel.trim()}
+          />
         )}
       </View>
 

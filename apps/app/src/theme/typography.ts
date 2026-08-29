@@ -20,7 +20,6 @@ export const typography = {
     hero: { fontFamily: fontFamilies.manropeExtraBold, fontSize: 40, lineHeight: 46 },
   },
   heading: {
-    wordmark: { fontFamily: fontFamilies.genty, fontSize: 32, lineHeight: 36 },
     screen: { fontFamily: fontFamilies.manropeBold, fontSize: 24, lineHeight: 30 },
     section: { fontFamily: fontFamilies.manropeSemiBold, fontSize: 17, lineHeight: 22 },
   },

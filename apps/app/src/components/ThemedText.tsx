@@ -4,7 +4,6 @@ import { useTheme } from "@/theme/ThemeProvider";
 
 type Role =
   | "displayHero"
-  | "headingWordmark"
   | "headingScreen"
   | "headingSection"
   | "body"
@@ -21,7 +20,6 @@ type ThemedTextProps = TextProps & {
 
 const roleStyles = (typography: ReturnType<typeof useTheme>["typography"]) => ({
   displayHero: typography.display.hero,
-  headingWordmark: typography.heading.wordmark,
   headingScreen: typography.heading.screen,
   headingSection: typography.heading.section,
   body: typography.body.regular,
