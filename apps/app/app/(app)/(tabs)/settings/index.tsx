@@ -69,58 +69,60 @@ export default function SettingsIndex() {
   const isGuest = session?.user.is_anonymous ?? false;
 
   return (
-    <Screen style={{ gap: 12 }}>
-      <ThemedText preset="headingScreen" color="debit">
+    <Screen>
+      <ThemedText preset="headingScreen" color="debit" style={{ marginBottom: 16 }}>
         Settings
       </ThemedText>
-      {isGuest ? (
-        <>
-          <SettingsRow
-            label="You're a guest — save your account"
-            onPress={() => router.push("/(app)/(tabs)/settings/upgrade-account")}
-          />
-          <Pressable onPress={() => router.push("/(auth)/sign-in")} style={{ paddingVertical: 4 }}>
+      <View style={{ flex: 1, gap: 12 }}>
+        {isGuest ? (
+          <>
+            <SettingsRow
+              label="You're a guest — save your account"
+              onPress={() => router.push("/(app)/(tabs)/settings/upgrade-account")}
+            />
+            <Pressable onPress={() => router.push("/(auth)/sign-in")} style={{ paddingVertical: 4 }}>
+              <ThemedText preset="body" color="secondary" style={{ textDecorationLine: "underline" }}>
+                Already have an account? Sign in
+              </ThemedText>
+            </Pressable>
+          </>
+        ) : null}
+        <SettingsRow label="Profile" onPress={() => router.push("/(app)/(tabs)/settings/profile")} />
+        <SettingsRow
+          label="Notifications"
+          onPress={() => router.push("/(app)/(tabs)/settings/notifications")}
+        />
+        <SettingsRow
+          label="Tallies"
+          onPress={() => router.push("/(app)/(tabs)/settings/currencies")}
+        />
+        <AppearanceToggle />
+        {isGuest ? null : (
+          <Pressable onPress={() => supabase.auth.signOut()} style={{ alignSelf: "center", paddingVertical: 4 }}>
             <ThemedText preset="body" color="secondary" style={{ textDecorationLine: "underline" }}>
-              Already have an account? Sign in
+              Sign out
             </ThemedText>
           </Pressable>
-        </>
-      ) : null}
-      <SettingsRow label="Profile" onPress={() => router.push("/(app)/(tabs)/settings/profile")} />
-      <SettingsRow
-        label="Notifications"
-        onPress={() => router.push("/(app)/(tabs)/settings/notifications")}
-      />
-      <SettingsRow
-        label="Tallies"
-        onPress={() => router.push("/(app)/(tabs)/settings/currencies")}
-      />
-      <AppearanceToggle />
-      {isGuest ? null : (
-        <Pressable onPress={() => supabase.auth.signOut()} style={{ alignSelf: "center", paddingVertical: 4 }}>
-          <ThemedText preset="body" color="secondary" style={{ textDecorationLine: "underline" }}>
-            Sign out
-          </ThemedText>
-        </Pressable>
-      )}
-      {isGuest ? null : (
-        <Pressable
-          onPress={() => router.push("/(app)/(tabs)/settings/delete-account")}
-          style={{ alignSelf: "center", paddingVertical: 4 }}
+        )}
+        {isGuest ? null : (
+          <Pressable
+            onPress={() => router.push("/(app)/(tabs)/settings/delete-account")}
+            style={{ alignSelf: "center", paddingVertical: 4 }}
+          >
+            <ThemedText preset="body" color="debit" style={{ textDecorationLine: "underline" }}>
+              Delete account
+            </ThemedText>
+          </Pressable>
+        )}
+        <View style={{ flex: 1 }} />
+        <ThemedText
+          preset="ledgerMeta"
+          color="secondary"
+          style={{ textAlign: "center", marginBottom: TAB_BAR_CLEARANCE }}
         >
-          <ThemedText preset="body" color="debit" style={{ textDecorationLine: "underline" }}>
-            Delete account
-          </ThemedText>
-        </Pressable>
-      )}
-      <View style={{ flex: 1 }} />
-      <ThemedText
-        preset="ledgerMeta"
-        color="secondary"
-        style={{ textAlign: "center", marginBottom: TAB_BAR_CLEARANCE }}
-      >
-        Talli, part of Folio
-      </ThemedText>
+          Talli, part of Folio
+        </ThemedText>
+      </View>
     </Screen>
   );
 }
