@@ -24,21 +24,23 @@ export default function Dashboard() {
   return (
     <Screen style={{ padding: 0 }}>
       <View style={{ flex: 1 }}>
+        {/* A fixed header, not a FlatList ListHeaderComponent — the wordmark
+            shouldn't scroll away with the list, and ListHeaderComponent sat
+            inside the list's own clipped scroll viewport, which was cutting
+            off Genty's tall glyphs. */}
+        <View style={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 16 }}>
+          <ThemedText
+            preset="headingScreen"
+            style={{ fontFamily: fontFamilies.genty, fontSize: 40, lineHeight: 56, color: colors.debit }}
+          >
+            Tallis
+          </ThemedText>
+        </View>
         <FlatList
           data={tallies}
           keyExtractor={(item) => item.id}
           style={{ flex: 1 }}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, gap: 12 }}
-          ListHeaderComponent={
-            <View style={{ paddingBottom: 16, gap: 4 }}>
-              <ThemedText
-                preset="headingScreen"
-                style={{ fontFamily: fontFamilies.genty, fontSize: 40, lineHeight: 60, color: colors.debit }}
-              >
-                Tallis
-              </ThemedText>
-            </View>
-          }
+          contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
           ListEmptyComponent={
             loading ? null : (
               <View style={{ paddingTop: 60, alignItems: "center", gap: 8 }}>
@@ -66,7 +68,7 @@ export default function Dashboard() {
             padding on web, not a shorter box, so it can't stop the list from
             scrolling under the floating buttons. A fixed-height sibling
             genuinely shrinks the FlatList's flex:1 share of the column. */}
-        <View style={{ height: 190 }} />
+        <View style={{ height: 165 }} />
       </View>
       {/* Bottom stack, lowest to highest: nav bar (see _layout.tsx) → CTA
           section (offset to clear the nav bar) → AI button (offset to clear

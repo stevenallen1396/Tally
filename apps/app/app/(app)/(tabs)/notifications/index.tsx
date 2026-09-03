@@ -18,8 +18,10 @@ export default function Notifications() {
 
   return (
     <Screen style={{ padding: 0 }}>
-      <View style={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 16 }}>
-        <ThemedText preset="headingScreen">Activity</ThemedText>
+      <View style={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 16 }}>
+        <ThemedText preset="headingScreen" color="debit">
+          Activity
+        </ThemedText>
       </View>
       <FlatList
         data={notifications}

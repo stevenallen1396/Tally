@@ -24,9 +24,9 @@ export function CurrencyPicker({
             onPress={() => onChange(currency.code)}
             accessibilityLabel={currency.label}
             style={{
-              width: 72,
-              height: 72,
-              borderRadius: 36,
+              width: 52,
+              height: 52,
+              borderRadius: 26,
               alignItems: "center",
               justifyContent: "center",
               borderWidth: 1,
@@ -36,7 +36,12 @@ export function CurrencyPicker({
           >
             <ThemedText
               preset="headingScreen"
-              style={{ fontSize: 30, lineHeight: 34, color: selected ? "#FFFDF8" : colors.textPrimary }}
+              style={{
+                fontSize: 20,
+                lineHeight: 24,
+                textAlign: "center",
+                color: selected ? "#FFFDF8" : colors.textPrimary,
+              }}
             >
               {currency.symbol}
             </ThemedText>

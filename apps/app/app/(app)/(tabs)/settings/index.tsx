@@ -70,7 +70,9 @@ export default function SettingsIndex() {
 
   return (
     <Screen style={{ gap: 12 }}>
-      <ThemedText preset="headingScreen">Settings</ThemedText>
+      <ThemedText preset="headingScreen" color="debit">
+        Settings
+      </ThemedText>
       {isGuest ? (
         <>
           <SettingsRow

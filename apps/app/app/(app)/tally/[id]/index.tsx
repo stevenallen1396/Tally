@@ -124,8 +124,8 @@ export default function TallyDetail() {
       <FlatList
         data={entries}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 110 }}
-        style={{ borderTopWidth: 1, borderTopColor: colors.border }}
+        contentContainerStyle={{ paddingHorizontal: 20 }}
+        style={{ flex: 1, borderTopWidth: 1, borderTopColor: colors.border }}
         ListEmptyComponent={
           loading ? null : (
             <View style={{ paddingTop: 40, alignItems: "center" }}>
@@ -139,6 +139,11 @@ export default function TallyDetail() {
           <EntryRow data={item} onPress={() => router.push(`/(app)/tally/${id}/entry/${item.id}`)} />
         )}
       />
+      {/* A flex sibling, not FlatList padding — padding on a FlatList's
+          style/contentContainerStyle just becomes interior scroll-content
+          padding on web, not a shorter box, so it can't stop entries from
+          rendering under the floating Add entry/Settle up/Leave cluster. */}
+      <View style={{ height: 180 }} />
 
       <View style={{ position: "absolute", left: 20, right: 20, bottom: 20, gap: 10 }}>
         {closed ? null : (
