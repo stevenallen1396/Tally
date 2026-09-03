@@ -18,7 +18,7 @@ export function CurrencyPicker({
 
   if (variant === "icon") {
     return (
-      <View style={{ flexDirection: "row", gap: 16 }}>
+      <View style={{ flexDirection: "row", justifyContent: "center", gap: 20 }}>
         {CURRENCIES.map((currency) => {
           const selected = value === currency.code;
           return (
@@ -27,19 +27,19 @@ export function CurrencyPicker({
               onPress={() => onChange(currency.code)}
               accessibilityLabel={currency.label}
               style={{
-                width: 56,
-                height: 56,
-                borderRadius: 28,
+                width: 72,
+                height: 72,
+                borderRadius: 36,
                 alignItems: "center",
                 justifyContent: "center",
                 borderWidth: 1,
-                borderColor: selected ? colors.accentSecondary : colors.border,
-                backgroundColor: selected ? colors.accentSecondary : colors.surface,
+                borderColor: selected ? colors.accentPrimary : colors.border,
+                backgroundColor: selected ? colors.accentPrimary : colors.surface,
               }}
             >
               <ThemedText
                 preset="headingScreen"
-                style={{ fontSize: 22, lineHeight: 26, color: selected ? "#FFFDF8" : colors.textPrimary }}
+                style={{ fontSize: 30, lineHeight: 34, color: selected ? "#FFFDF8" : colors.textPrimary }}
               >
                 {currency.symbol}
               </ThemedText>
