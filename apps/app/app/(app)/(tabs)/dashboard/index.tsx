@@ -84,7 +84,7 @@ export default function Dashboard() {
           style={{
             position: "absolute",
             right: 20,
-            bottom: 169,
+            bottom: 185,
             zIndex: 1,
             transform: [{ scale: pressScale }],
           }}
