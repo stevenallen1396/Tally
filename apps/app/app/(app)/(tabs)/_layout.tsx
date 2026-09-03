@@ -10,6 +10,12 @@ import { useTheme } from "@/theme/ThemeProvider";
 
 const BAR_WIDTH = 240;
 
+// How much bottom clearance scrollable/pinned content on a tab needs to
+// fully clear the floating tab bar below it. Import this instead of
+// hardcoding a per-screen magic number so every tab stays in sync if the
+// bar's size or position ever changes.
+export const TAB_BAR_CLEARANCE = 130;
+
 // A fully custom tab bar instead of the default one: React Navigation's
 // built-in tab bar reserves vertical space for a label even with
 // tabBarShowLabel: false (a known quirk), which left icons sitting near the

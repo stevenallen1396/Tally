@@ -7,6 +7,8 @@ import { ThemedText } from "@/components/ThemedText";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useTheme } from "@/theme/ThemeProvider";
 
+import { TAB_BAR_CLEARANCE } from "../_layout";
+
 function formatWhen(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short" });
 }
@@ -24,7 +26,7 @@ export default function Notifications() {
       <FlatList
         data={notifications}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 100 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: TAB_BAR_CLEARANCE }}
         ListEmptyComponent={
           loading ? null : (
             <View style={{ paddingTop: 60, alignItems: "center" }}>

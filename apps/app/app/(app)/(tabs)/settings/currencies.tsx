@@ -9,6 +9,8 @@ import { useTallies } from "@/hooks/useTallies";
 import { useTheme } from "@/theme/ThemeProvider";
 import { supabase } from "@/lib/supabase";
 
+import { TAB_BAR_CLEARANCE } from "../_layout";
+
 export default function Tallies() {
   const { colors, typography } = useTheme();
   const { tallies, loading, refetch } = useTallies();
@@ -36,7 +38,7 @@ export default function Tallies() {
       <FlatList
         data={tallies}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ padding: 20, gap: 16 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: TAB_BAR_CLEARANCE, gap: 16 }}
         ListEmptyComponent={
           loading ? null : (
             <View style={{ paddingTop: 40, alignItems: "center" }}>

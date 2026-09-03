@@ -10,6 +10,8 @@ import { supabase } from "@/lib/supabase";
 import { useThemeStore, type ThemePreference } from "@/stores/themeStore";
 import { useTheme } from "@/theme/ThemeProvider";
 
+import { TAB_BAR_CLEARANCE } from "../_layout";
+
 const THEME_OPTIONS: {
   value: ThemePreference;
   icon: keyof typeof Ionicons.glyphMap;
@@ -113,7 +115,7 @@ export default function SettingsIndex() {
       <ThemedText
         preset="ledgerMeta"
         color="secondary"
-        style={{ textAlign: "center", marginBottom: 110 }}
+        style={{ textAlign: "center", marginBottom: TAB_BAR_CLEARANCE }}
       >
         Talli, part of Folio
       </ThemedText>
