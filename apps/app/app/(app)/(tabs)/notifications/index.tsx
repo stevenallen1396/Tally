@@ -1,6 +1,5 @@
 import { formatAbs } from "@tally/shared";
-import { useRouter } from "expo-router";
-import { FlatList, Pressable, View } from "react-native";
+import { FlatList, View } from "react-native";
 
 import { Screen } from "@/components/Screen";
 import { ThemedText } from "@/components/ThemedText";
@@ -15,7 +14,6 @@ function formatWhen(iso: string) {
 
 export default function Notifications() {
   const { colors } = useTheme();
-  const router = useRouter();
   const { notifications, loading } = useNotifications();
 
   return (
@@ -26,7 +24,8 @@ export default function Notifications() {
       <FlatList
         data={notifications}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: TAB_BAR_CLEARANCE }}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingHorizontal: 20 }}
         ListEmptyComponent={
           loading ? null : (
             <View style={{ paddingTop: 60, alignItems: "center" }}>
@@ -50,10 +49,7 @@ export default function Notifications() {
           const subtitle = isMembershipEvent ? item.body : (item.description ?? item.body);
 
           return (
-            <Pressable
-              onPress={() => {
-                if (item.tallyId) router.push(`/(app)/tally/${item.tallyId}`);
-              }}
+            <View
               style={{
                 flexDirection: "row",
                 alignItems: "flex-start",
@@ -88,10 +84,13 @@ export default function Notifications() {
                   </ThemedText>
                 </View>
               ) : null}
-            </Pressable>
+            </View>
           );
         }}
       />
+      {/* A flex sibling, not FlatList padding — see the equivalent comment
+          on the dashboard's list for why. */}
+      <View style={{ height: TAB_BAR_CLEARANCE }} />
     </Screen>
   );
 }

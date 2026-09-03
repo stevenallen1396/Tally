@@ -8,67 +8,37 @@ import { ThemedText } from "./ThemedText";
 export function CurrencyPicker({
   value,
   onChange,
-  variant = "pill",
 }: {
   value: string;
   onChange: (currency: CurrencyCode) => void;
-  variant?: "pill" | "icon";
 }) {
   const { colors } = useTheme();
 
-  if (variant === "icon") {
-    return (
-      <View style={{ flexDirection: "row", justifyContent: "center", gap: 20 }}>
-        {CURRENCIES.map((currency) => {
-          const selected = value === currency.code;
-          return (
-            <Pressable
-              key={currency.code}
-              onPress={() => onChange(currency.code)}
-              accessibilityLabel={currency.label}
-              style={{
-                width: 72,
-                height: 72,
-                borderRadius: 36,
-                alignItems: "center",
-                justifyContent: "center",
-                borderWidth: 1,
-                borderColor: selected ? colors.accentPrimary : colors.border,
-                backgroundColor: selected ? colors.accentPrimary : colors.surface,
-              }}
-            >
-              <ThemedText
-                preset="headingScreen"
-                style={{ fontSize: 30, lineHeight: 34, color: selected ? "#FFFDF8" : colors.textPrimary }}
-              >
-                {currency.symbol}
-              </ThemedText>
-            </Pressable>
-          );
-        })}
-      </View>
-    );
-  }
-
   return (
-    <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+    <View style={{ flexDirection: "row", justifyContent: "center", gap: 20 }}>
       {CURRENCIES.map((currency) => {
         const selected = value === currency.code;
         return (
           <Pressable
             key={currency.code}
             onPress={() => onChange(currency.code)}
+            accessibilityLabel={currency.label}
             style={{
-              paddingVertical: 8,
-              paddingHorizontal: 14,
-              borderRadius: 10,
+              width: 72,
+              height: 72,
+              borderRadius: 36,
+              alignItems: "center",
+              justifyContent: "center",
               borderWidth: 1,
-              borderColor: colors.border,
+              borderColor: selected ? colors.accentPrimary : colors.border,
               backgroundColor: selected ? colors.accentPrimary : colors.surface,
             }}
           >
-            <ThemedText preset="bodyEmphasis" style={{ color: selected ? "#FFFDF8" : colors.textPrimary }}>
-              {currency.label}
+            <ThemedText
+              preset="headingScreen"
+              style={{ fontSize: 30, lineHeight: 34, color: selected ? "#FFFDF8" : colors.textPrimary }}
+            >
+              {currency.symbol}
             </ThemedText>
           </Pressable>
         );

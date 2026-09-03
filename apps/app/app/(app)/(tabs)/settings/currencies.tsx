@@ -38,7 +38,8 @@ export default function Tallies() {
       <FlatList
         data={tallies}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: TAB_BAR_CLEARANCE, gap: 16 }}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, gap: 16 }}
         ListEmptyComponent={
           loading ? null : (
             <View style={{ paddingTop: 40, alignItems: "center" }}>
@@ -82,6 +83,9 @@ export default function Tallies() {
           </View>
         )}
       />
+      {/* A flex sibling, not FlatList padding — see the equivalent comment
+          on the dashboard's list for why. */}
+      <View style={{ height: TAB_BAR_CLEARANCE }} />
     </Screen>
   );
 }

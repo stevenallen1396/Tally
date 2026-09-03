@@ -27,12 +27,13 @@ export default function Dashboard() {
         <FlatList
           data={tallies}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 190, gap: 12 }}
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, gap: 12 }}
           ListHeaderComponent={
             <View style={{ paddingBottom: 16, gap: 4 }}>
               <ThemedText
                 preset="headingScreen"
-                style={{ fontFamily: fontFamilies.genty, fontSize: 40, lineHeight: 50, color: colors.debit }}
+                style={{ fontFamily: fontFamilies.genty, fontSize: 40, lineHeight: 60, color: colors.debit }}
               >
                 Tallis
               </ThemedText>
@@ -60,6 +61,12 @@ export default function Dashboard() {
             />
           )}
         />
+        {/* A flex sibling, not FlatList padding — padding on a FlatList's
+            style/contentContainerStyle just becomes interior scroll-content
+            padding on web, not a shorter box, so it can't stop the list from
+            scrolling under the floating buttons. A fixed-height sibling
+            genuinely shrinks the FlatList's flex:1 share of the column. */}
+        <View style={{ height: 190 }} />
       </View>
       {/* Bottom stack, lowest to highest: nav bar (see _layout.tsx) → CTA
           section (offset to clear the nav bar) → AI button (offset to clear

@@ -30,7 +30,12 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "app.folio.tally"
+      "bundleIdentifier": "app.folio.tally",
+      "infoPlist": {
+        "NSSpeechRecognitionUsageDescription": "Talli uses speech recognition to turn what you say into text for Talli AI.",
+        "NSMicrophoneUsageDescription": "Talli uses your microphone to let you dictate messages to Talli AI.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "app.folio.tally",
@@ -40,12 +45,21 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro",
       "output": "static"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "94d25684-236d-4306-9b18-fb3db86316c1"
+      }
     }
   }
 }
