@@ -82,7 +82,7 @@ export default function Onboarding() {
           <ThemedText preset="body" color="secondary">
             What&apos;s your primary currency? You can pick a different one for each talli later.
           </ThemedText>
-          <CurrencyPicker value={currency} onChange={setCurrency} />
+          <CurrencyPicker value={currency} onChange={setCurrency} variant="icon" />
         </View>
         {error ? (
           <ThemedText preset="body" color="debit">

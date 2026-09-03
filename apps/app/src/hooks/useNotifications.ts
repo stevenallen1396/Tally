@@ -26,11 +26,16 @@ type NotificationRow = {
   data: { entry_id?: string; settlement_id?: string } | null;
 };
 
+const ACTIVITY_WINDOW_DAYS = 30;
+
 async function fetchNotifications(userId: string): Promise<NotificationItem[]> {
+  const since = new Date(Date.now() - ACTIVITY_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
+
   const { data, error } = await supabase
     .from("notifications")
     .select("id, tally_id, type, title, body, created_at, data")
     .eq("user_id", userId)
+    .gte("created_at", since)
     .order("created_at", { ascending: false })
     .limit(50);
   if (error) throw error;
