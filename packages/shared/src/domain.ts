@@ -22,9 +22,13 @@ export type NotificationType =
   | "member_left"
   | "member_joined";
 
-/** Formats pence as an unsigned string in the given currency, e.g. (1250, "GBP") -> "£12.50". */
+/** Formats pence as an unsigned string in the given currency, e.g. (125000, "GBP") -> "£1,250.00". */
 export function formatAbs(amountMinor: number, currency: string): string {
-  return `${currencySymbol(currency)}${(Math.abs(amountMinor) / 100).toFixed(2)}`;
+  const major = (Math.abs(amountMinor) / 100).toLocaleString("en-GB", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return `${currencySymbol(currency)}${major}`;
 }
 
 /** Formats pence as a signed string in the given currency, e.g. (1250, "GBP") -> "+£12.50". */

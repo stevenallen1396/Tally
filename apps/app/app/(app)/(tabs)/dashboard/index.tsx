@@ -25,13 +25,16 @@ export default function Dashboard() {
     <Screen style={{ padding: 0 }}>
       <View style={{ flex: 1 }}>
         {/* A fixed header, not a FlatList ListHeaderComponent — the wordmark
-            shouldn't scroll away with the list, and ListHeaderComponent sat
-            inside the list's own clipped scroll viewport, which was cutting
-            off Genty's tall glyphs. */}
+            shouldn't scroll away with the list. Genty's own glyph box at
+            fontSize 40 measures ~58px tall (canvas-measured on web), and
+            native iOS Text crops any glyph ink that exceeds the declared
+            lineHeight (web/DOM is far more forgiving, which is why this only
+            ever clipped in Expo Go, never in Safari) — lineHeight needs real
+            headroom above that 58px, not just to clear it. */}
         <View style={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 16 }}>
           <ThemedText
             preset="headingScreen"
-            style={{ fontFamily: fontFamilies.genty, fontSize: 40, lineHeight: 56, color: colors.debit }}
+            style={{ fontFamily: fontFamilies.genty, fontSize: 40, lineHeight: 70, color: colors.debit }}
           >
             Tallis
           </ThemedText>

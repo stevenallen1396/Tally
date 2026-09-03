@@ -70,7 +70,7 @@ export default function SettingsIndex() {
 
   return (
     <Screen>
-      <ThemedText preset="headingScreen" color="debit" style={{ marginBottom: 16 }}>
+      <ThemedText preset="headingScreen" color="debit" style={{ marginBottom: 24 }}>
         Settings
       </ThemedText>
       <View style={{ flex: 1, gap: 12 }}>
