@@ -67,7 +67,7 @@ export default function Dashboard() {
           temporarily removed — offsets here assume it's gone; re-add its
           40px height + 12px gap to each if it comes back. */}
       <View>
-        <View style={{ position: "absolute", left: 20, right: 20, bottom: 69, gap: 4 }}>
+        <View style={{ position: "absolute", left: 20, right: 20, bottom: 85, gap: 4 }}>
           <Link href="/(app)/tally/new" asChild>
             <Button label="Start a talli" />
           </Link>
